@@ -19,6 +19,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--background);
   color: var(--text-primary);
+  /* Prevent horizontal scrollbar caused by the push effect */
+  overflow-x: hidden;
 }
 
 .app-layout {
@@ -31,6 +33,9 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0;
+  /* Add transition for the push animation */
+  transition: transform 0.3s ease-in-out;
 }
 
 .page-content {
@@ -50,11 +55,20 @@ body {
   display: block;
 }
 
+/* This is the new rule that pushes the content */
+.sidebar-is-open .main-content-wrapper {
+  transform: translateX(250px);
+}
+
 @media (min-width: 768px) {
   .page-content {
     padding: 2rem 3rem;
   }
   .hamburger-menu {
     display: none;
+  }
+  /* On desktop, the push effect is disabled */
+  .sidebar-is-open .main-content-wrapper {
+    transform: none;
   }
 }

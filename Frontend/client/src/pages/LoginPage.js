@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -15,7 +15,7 @@ const LoginPage = () => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      navigate('/'); // Redirect to dashboard on successful login
+      navigate('/');
     } catch (error) {
       alert(error.error_description || error.message);
     }
@@ -51,6 +51,13 @@ const LoginPage = () => {
             </div>
             <Button type="submit">Log In</Button>
           </form>
+          
+          <div className="login-links">
+            <Link to="/forgot-password">Forgot your password?</Link>
+            <span>
+              New user? <Link to="/signup">Sign up</Link>
+            </span>
+          </div>
         </div>
       </Card>
     </div>

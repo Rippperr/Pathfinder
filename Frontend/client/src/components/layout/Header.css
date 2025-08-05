@@ -14,7 +14,7 @@
 }
 
 .header-icon-wrapper {
-  display: flex;
+  display: flex; /* Visible on mobile by default */
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
@@ -45,6 +45,10 @@
   border-radius: 50%;
   background-color: var(--text-secondary);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
 }
 
 .profile-dropdown {
@@ -79,7 +83,7 @@
   margin: 0;
 }
 
-.profile-dropdown li a {
+.profile-dropdown li a, .logout-button {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -89,13 +93,30 @@
   font-weight: 500;
   font-size: 0.95rem;
 }
+.logout-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
 
-.profile-dropdown li a:hover {
+.profile-dropdown li a:hover, .logout-button:hover {
   background-color: var(--accent-blue);
+}
+
+.sidebar-icon {
+  width: 24px;
+  text-align: center;
+  font-size: 1.1rem;
 }
 
 @media (min-width: 768px) {
   .main-header {
     padding: 1rem 3rem;
+  }
+  /* This rule hides the hamburger icon on screens wider than 768px */
+  .header-icon-wrapper {
+    display: none;
   }
 }

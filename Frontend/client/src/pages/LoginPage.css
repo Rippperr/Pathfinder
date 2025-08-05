@@ -13,11 +13,6 @@
 
 .login-form h2 {
   font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.login-form p {
-  color: #a0aec0;
   margin-bottom: 2rem;
 }
 
@@ -30,7 +25,7 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .form-group input {
@@ -38,12 +33,33 @@
   padding: 0.75rem;
   font-size: 1rem;
   border-radius: 8px;
-  border: 1px solid #4a5568;
-  background-color: #1a202c;
-  color: white;
+  border: 1px solid var(--border-color);
+  background-color: var(--sidebar-bg);
+  color: var(--text-primary);
   box-sizing: border-box;
 }
 
 .form-group input::placeholder {
-  color: #718096;
+  color: var(--text-secondary);
+}
+
+/* --- UPDATED STYLES FOR LINKS --- */
+.login-links {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center;    /* Center them horizontally */
+  gap: 1rem;              /* Add space between them */
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.login-links a {
+  color: var(--accent-blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-links a:hover {
+  text-decoration: underline;
 }

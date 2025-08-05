@@ -8,5 +8,4 @@ const Card = ({ children, className = '' }) => {
     </div>
   );
 };
-
 export default Card;

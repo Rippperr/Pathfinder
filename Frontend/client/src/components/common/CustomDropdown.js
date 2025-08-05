@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LuChevronDown } from 'react-icons/lu';
 import './CustomDropdown.css';
 
-const CustomDropdown = ({ options, selectedValue, onChange, placeholder }) => {
+const CustomDropdown = ({ options, selectedValue, onChange, placeholder, displayKey = 'name' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -21,13 +20,14 @@ const CustomDropdown = ({ options, selectedValue, onChange, placeholder }) => {
     setIsOpen(false);
   };
 
-  const displayValue = options.find(o => o.id === selectedValue)?.title || placeholder;
+  const displayValue = options.find(o => o.id === selectedValue)?.[displayKey] || placeholder;
 
   return (
     <div className="custom-dropdown-container" ref={dropdownRef}>
       <button className="dropdown-button" onClick={() => setIsOpen(!isOpen)}>
         <span>{displayValue}</span>
-        <LuChevronDown className={`dropdown-arrow ${isOpen ? 'open' : ''}`} />
+        {/* The icon component is replaced with a simple span */}
+        <span className={`dropdown-arrow ${isOpen ? 'open' : ''}`}></span>
       </button>
       {isOpen && (
         <ul className="dropdown-list">
@@ -37,7 +37,7 @@ const CustomDropdown = ({ options, selectedValue, onChange, placeholder }) => {
               onClick={() => handleSelect(option)}
               className={option.id === selectedValue ? 'selected' : ''}
             >
-              {option.title}
+              {option[displayKey]}
             </li>
           ))}
         </ul>

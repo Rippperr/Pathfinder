@@ -5,6 +5,10 @@
   margin-bottom: 1.5rem;
 }
 
+.dashboard-page .custom-dropdown-container {
+  margin-bottom: 2rem;
+}
+
 .skill-gap-analysis {
   display: flex;
   flex-direction: column;

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 
 const UserContext = createContext();
@@ -6,48 +6,52 @@ const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for active session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    // Fetch the user's public profile when the session is set
-    if (session?.user) {
-      supabase
+  const fetchProfile = useCallback(async (user) => {
+    setLoading(true);
+    if (user) {
+      const { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('id', session.user.id)
-        .single()
-        .then(({ data, error }) => {
-          if (!error) {
-            setProfile(data);
-          }
-        });
+        .eq('id', user.id)
+        .single();
+      
+      if (!error) {
+        setProfile(data);
+      }
     } else {
       setProfile(null);
     }
-  }, [session]);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    // This part is for the initial page load
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      fetchProfile(session?.user);
+    });
+
+    // This part listens for subsequent logins or logouts
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      // This is the line that was missing. It refetches the profile on change.
+      fetchProfile(session?.user);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [fetchProfile]);
 
   const value = {
     session,
     profile,
+    loading,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
-// Custom hook to use the UserContext
 export const useUser = () => {
   return useContext(UserContext);
 };

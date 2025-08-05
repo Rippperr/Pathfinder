@@ -63,6 +63,7 @@ const DashboardPage = () => {
         selectedValue={selectedRoleId}
         onChange={handleRoleChange}
         placeholder="Select your target role"
+        displayKey="title"
       />
 
       <Card>

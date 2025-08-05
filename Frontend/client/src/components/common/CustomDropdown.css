@@ -1,7 +1,5 @@
 .custom-dropdown-container {
   position: relative;
-  width: 100%;
-  margin-bottom: 2rem;
 }
 
 .dropdown-button {
@@ -11,7 +9,7 @@
   text-align: left;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  background-color: var(--card-bg);
+  background-color: var(--sidebar-bg);
   color: var(--text-secondary);
   cursor: pointer;
   display: flex;
@@ -19,12 +17,22 @@
   align-items: center;
 }
 
+/* New CSS to create a chevron arrow */
 .dropdown-arrow {
-  transition: transform 0.2s ease;
+  border: solid var(--text-secondary);
+  border-width: 0 2px 2px 0;
+  display: inline-block;
+  padding: 3px;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .dropdown-arrow.open {
-  transform: rotate(180deg);
+  transform: rotate(-135deg);
+}
+
+.dropdown-button:hover .dropdown-arrow {
+  border-color: var(--text-primary);
 }
 
 .dropdown-list {
@@ -39,8 +47,26 @@
   padding: 0.5rem 0;
   margin: 0;
   z-index: 10;
-  max-height: 200px;
+  max-height: 12rem;
   overflow-y: auto;
+}
+
+.dropdown-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdown-list::-webkit-scrollbar-track {
+  background: var(--sidebar-bg);
+  border-radius: 8px;
+}
+
+.dropdown-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 8px;
+}
+
+.dropdown-list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
 
 .dropdown-list li {

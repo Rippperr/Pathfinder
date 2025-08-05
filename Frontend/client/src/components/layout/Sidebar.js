@@ -1,9 +1,17 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-// import { LuLayoutDashboard, LuUser, LuLineChart, LuLogOut } from 'react-icons/lu'; // ICONS COMMENTED OUT
+import { NavLink, useNavigate } from 'react-router-dom';
+import { supabase } from '../../supabaseClient';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onLinkClick }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    if(onLinkClick) onLinkClick();
+    navigate('/login');
+  };
+
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
@@ -14,29 +22,29 @@ const Sidebar = ({ isOpen, onLinkClick }) => {
         <ul>
           <li>
             <NavLink to="/" onClick={onLinkClick}>
-              {/* <LuLayoutDashboard /> */}
+              <span className="sidebar-icon">📊</span>
               <span>Dashboard</span>
             </NavLink>
           </li>
           <li>
             <NavLink to="/profile" onClick={onLinkClick}>
-              {/* <LuUser /> */}
+              <span className="sidebar-icon">👤</span>
               <span>My Profile</span>
             </NavLink>
           </li>
           <li>
             <NavLink to="/paths" onClick={onLinkClick}>
-              {/* <LuLineChart /> */}
+              <span className="sidebar-icon">📈</span>
               <span>Career Paths</span>
             </NavLink>
           </li>
         </ul>
       </nav>
       <div className="sidebar-footer">
-        <NavLink to="/login">
-            {/* <LuLogOut /> */}
+        <button onClick={handleLogout} className="sidebar-logout-button">
+            <span className="sidebar-icon">➡️</span>
             <span>Logout</span>
-        </NavLink>
+        </button>
       </div>
     </aside>
   );
