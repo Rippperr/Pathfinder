@@ -63,3 +63,30 @@
 .login-links a:hover {
   text-decoration: underline;
 }
+
+/* Add these styles to the bottom of your LoginPage.css file */
+
+.reset-instruction {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.status-message {
+    padding: 0.75rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.status-message.success {
+    background-color: #d1fae5; /* Very light green */
+    color: #065f46;          /* Dark green text */
+    border: 1px solid #a7f3d0;
+}
+
+.status-message.error {
+    background-color: #fee2e2; /* Very light red */
+    color: #991b1b;          /* Dark red text */
+    border: 1px solid #fecaca;
+}
