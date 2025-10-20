@@ -13,8 +13,10 @@ This project features a React frontend and a Supabase backend with AI-powered re
 
 *Add screenshots of your application here. You can drag and drop them into this README file on GitHub.*
 
-![Dashboard View](./path/to/dashboard_screenshot.png)
-![Profile View](./path/to/profile_screenshot.png)
+![Dashboard View](<img width="959" height="532" alt="Dashboard" src="https://github.com/user-attachments/assets/170c5637-ae0f-4564-ad5c-8bd4cd84c0ac" />)
+
+
+![Profile View](<img width="959" height="536" alt="Profile" src="https://github.com/user-attachments/assets/467bdc48-8a9b-410c-be86-737f1bb2e08b" />)
 
 ---
 
