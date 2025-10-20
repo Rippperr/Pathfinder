@@ -8,6 +8,7 @@ export const UserProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Function to fetch the profile
   const fetchProfile = useCallback(async (user) => {
     setLoading(true);
     if (user) {
@@ -19,6 +20,10 @@ export const UserProvider = ({ children }) => {
       
       if (!error) {
         setProfile(data);
+      } else {
+        // Handle case where profile might not exist yet after signup
+        setProfile(null);
+        console.warn("Could not fetch profile:", error.message);
       }
     } else {
       setProfile(null);
@@ -26,32 +31,36 @@ export const UserProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // Effect to manage session and initial profile fetch
   useEffect(() => {
-    // This part is for the initial page load
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       fetchProfile(session?.user);
     });
 
-    // This part listens for subsequent logins or logouts
+    // Listener for auth changes (login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      // This is the line that was missing. It refetches the profile on change.
-      fetchProfile(session?.user);
+      fetchProfile(session?.user); // Refetch profile on auth change
     });
 
+    // Cleanup listener on unmount
     return () => subscription.unsubscribe();
   }, [fetchProfile]);
 
+  // Define the context value, including refetchProfile
   const value = {
     session,
     profile,
     loading,
+    // Ensure this function is provided to the context consumers
+    refetchProfile: () => fetchProfile(session?.user),
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
+// Custom hook to consume the context
 export const useUser = () => {
   return useContext(UserContext);
 };

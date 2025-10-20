@@ -1,11 +1,14 @@
 import React from 'react';
 import './Card.css';
 
-const Card = ({ children, className = '' }) => {
+// Accept className and any other props (...props)
+const Card = ({ children, className = '', ...props }) => {
   return (
-    <div className={`card ${className}`}>
+    // Spread the props onto the div, including onClick
+    <div className={`card ${className}`} {...props}>
       {children}
     </div>
   );
 };
+
 export default Card;

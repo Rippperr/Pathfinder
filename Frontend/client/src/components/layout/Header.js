@@ -42,7 +42,12 @@ const Header = ({ onMenuClick }) => {
       </div>
       <div className="header-right" ref={dropdownRef}>
         <div className="user-avatar-container" onClick={toggleDropdown}>
-          <div className="user-avatar-placeholder">👤</div>
+          {/* Conditionally render image or placeholder */}
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="User Avatar" className="user-avatar-image" />
+          ) : (
+            <div className="user-avatar-placeholder">👤</div>
+          )}
         </div>
         {isDropdownOpen && (
           <div className="profile-dropdown">

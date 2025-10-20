@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { useUser } from '../contexts/UserContext';
+import { useUser } from '../contexts/UserContext'; // Ensure this hook provides refetchProfile
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import './EditProfilePage.css';
 
 const EditProfilePage = () => {
+  // Make sure refetchProfile is included here
   const { session, profile: contextProfile, refetchProfile } = useUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -49,11 +50,9 @@ const EditProfilePage = () => {
     updatedAchievements[index][field] = value;
     setAchievements(updatedAchievements);
   };
-
   const addAchievement = () => {
     setAchievements([...achievements, { title: '', subtitle: '' }]);
   };
-
   const removeAchievement = (index) => {
     setAchievements(achievements.filter((_, i) => i !== index));
   };
@@ -104,7 +103,8 @@ const EditProfilePage = () => {
       alert('An error occurred while saving.');
       setLoading(false);
     } else {
-      await refetchProfile();
+      // Call the refetch function after successful save
+      await refetchProfile(); 
       setLoading(false);
       alert('Profile saved successfully!');
       navigate('/profile');

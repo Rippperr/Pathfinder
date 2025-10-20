@@ -14,7 +14,7 @@
 }
 
 .header-icon-wrapper {
-  display: flex; /* Visible on mobile by default */
+  display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
@@ -39,18 +39,40 @@
   position: relative;
 }
 
+.user-avatar-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer; /* Add cursor to the container */
+}
+
+/* Style for the uploaded image */
+.user-avatar-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover; /* Ensures the image covers the circle */
+  border: 1px solid var(--border-color); /* Optional: add a subtle border */
+}
+
+/* Style for the placeholder emoji */
 .user-avatar-placeholder {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: var(--text-secondary);
-  cursor: pointer;
+  background-color: var(--card-bg);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
+  transition: background-color 0.2s;
 }
 
+.user-avatar-placeholder:hover {
+  background-color: var(--border-color);
+}
+
+/* --- Dropdown styles remain the same --- */
 .profile-dropdown {
   position: absolute;
   top: calc(100% + 10px);
@@ -114,9 +136,5 @@
 @media (min-width: 768px) {
   .main-header {
     padding: 1rem 3rem;
-  }
-  /* This rule hides the hamburger icon on screens wider than 768px */
-  .header-icon-wrapper {
-    display: none;
   }
 }
