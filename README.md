@@ -9,18 +9,18 @@ This project features a React frontend and a Supabase backend with AI-powered re
 
 (https://pathfinder-gamma-liard.vercel.app/)
 
+
 ### 📸 Screenshots
 
-*Add screenshots of your application here. You can drag and drop them into this README file on GitHub.*
-
-![Dashboard View] (<img width="957" height="445" alt="Dashboard" src="https://github.com/user-attachments/assets/dfca64bf-21b4-4197-a3a5-1a33a97f0d02" />)
+Dashboard View: <img width="957" height="445" alt="Dashboard" src="https://github.com/user-attachments/assets/dfca64bf-21b4-4197-a3a5-1a33a97f0d02" />
 
 
 
-![Profile View](<img width="953" height="448" alt="Profile" src="https://github.com/user-attachments/assets/c3b935c0-f2c2-426d-a371-ab07b52dcff8" />)
+Profile View: <img width="953" height="448" alt="Profile" src="https://github.com/user-attachments/assets/4b05ba77-3247-4957-be6f-0ed6b9936054" />
 
 
 ### 🚀 Features
+
 
 * **User Authentication**: Secure user registration and login handled by Supabase Auth.
 * **Profile Management**: Users can view and update their profile information and skillsets.
