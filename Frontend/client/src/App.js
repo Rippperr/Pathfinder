@@ -13,6 +13,7 @@ import EditProfilePage from './pages/EditProfilePage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage'; // 1. Import the new page
 import OnboardingPage from './pages/OnboardingPage';
+import LandingPage from './pages/LandingPage';
 import './App.css';
 
 const AppContent = () => {
@@ -20,6 +21,19 @@ const AppContent = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isOnboarding = location.pathname === '/onboarding';
+  const isPublicPage = ['/', '/login', '/signup', '/forgot-password', '/update-password'].includes(location.pathname);
+
+  if (isPublicPage) {
+    return (
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/update-password" element={<UpdatePasswordPage />} />
+      </Routes>
+    );
+  }
 
   return (
     <div className="app-layout">
@@ -28,16 +42,10 @@ const AppContent = () => {
         {session && !isOnboarding && <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />}
         <div className="page-content">
           <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/update-password" element={<UpdatePasswordPage />} /> {/* 2. Add the new route */}
-
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/onboarding" element={<OnboardingPage />} />
-              <Route path="/" element={<DashboardPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/edit-profile" element={<EditProfilePage />} />
               <Route path="/paths" element={<CareerPathsPage />} />

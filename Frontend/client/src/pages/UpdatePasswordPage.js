@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import PublicAuthLayout from '../components/layout/PublicAuthLayout';
 import './LoginPage.css';
 
 const UpdatePasswordPage = () => {
@@ -61,11 +61,8 @@ const UpdatePasswordPage = () => {
   };
 
   return (
-    <div className="login-page-container">
-      <Card>
+    <PublicAuthLayout title="Set a new password." description="Choose a strong password to secure your Pathfinder account.">
         <div className="login-form">
-          <h2>Set New Password</h2>
-          <p className="reset-instruction">Enter and confirm your new strong password.</p>
           
           <form onSubmit={handleUpdatePassword}>
             <div className="form-group">
@@ -100,8 +97,7 @@ const UpdatePasswordPage = () => {
             </Button>
           </form>
         </div>
-      </Card>
-    </div>
+    </PublicAuthLayout>
   );
 };
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
-import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import PublicAuthLayout from '../components/layout/PublicAuthLayout';
 import './LoginPage.css';
 
 const ForgotPasswordPage = () => {
@@ -31,11 +31,8 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="login-page-container">
-      <Card>
+    <PublicAuthLayout title="Reset your password." description="Enter your email address and we’ll send a secure password-reset link.">
         <div className="login-form">
-          <h2>Reset Password</h2>
-          <p className="reset-instruction">Enter your email address to receive a password reset link.</p>
           
           <form onSubmit={handleReset}>
             <div className="form-group">
@@ -58,8 +55,7 @@ const ForgotPasswordPage = () => {
             </Button>
           </form>
         </div>
-      </Card>
-    </div>
+    </PublicAuthLayout>
   );
 };
 

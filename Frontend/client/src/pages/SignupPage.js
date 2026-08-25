@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'; // 1. Import Link
 import { supabase } from '../supabaseClient';
-import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import PublicAuthLayout from '../components/layout/PublicAuthLayout';
 import './LoginPage.css'; // Reusing the login page styles
 
 const SignupPage = () => {
@@ -27,10 +27,8 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="login-page-container">
-      <Card>
+    <PublicAuthLayout title="Start with clarity." description="Create your free Pathfinder account and build a career plan around your goals.">
         <div className="login-form">
-          <h2>Create an Account</h2>
           <form onSubmit={handleSignup}>
             <div className="form-group">
               <label htmlFor="email">Email</label>
@@ -64,8 +62,7 @@ const SignupPage = () => {
             </span>
           </div>
         </div>
-      </Card>
-    </div>
+    </PublicAuthLayout>
   );
 };
 

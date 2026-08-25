@@ -21,7 +21,7 @@ const Sidebar = ({ isOpen, onLinkClick }) => {
       <nav className="sidebar-nav">
         <ul>
           <li>
-            <NavLink to="/" onClick={onLinkClick}>
+            <NavLink to="/dashboard" onClick={onLinkClick}>
               <span className="sidebar-icon">📊</span>
               <span>Dashboard</span>
             </NavLink>

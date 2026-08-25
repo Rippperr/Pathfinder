@@ -103,7 +103,7 @@ const OnboardingPage = () => {
     }
 
     await refetchProfile();
-    navigate('/', { replace: true });
+    navigate('/dashboard', { replace: true });
   };
 
   return (

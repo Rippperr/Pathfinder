@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import PublicAuthLayout from '../components/layout/PublicAuthLayout';
 import './LoginPage.css';
 
 const LoginPage = () => {
@@ -15,17 +15,15 @@ const LoginPage = () => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       alert(error.error_description || error.message);
     }
   };
 
   return (
-    <div className="login-page-container">
-      <Card>
+    <PublicAuthLayout title="Welcome back." description="Pick up where you left off and keep moving toward your next role.">
         <div className="login-form">
-          <h2>Welcome Back</h2>
           <form onSubmit={handleLogin}>
             <div className="form-group">
               <label htmlFor="email">Email</label>
@@ -59,8 +57,7 @@ const LoginPage = () => {
             </span>
           </div>
         </div>
-      </Card>
-    </div>
+    </PublicAuthLayout>
   );
 };
 
