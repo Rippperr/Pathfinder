@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { UserProvider, useUser } from './contexts/UserContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Sidebar from './components/layout/Sidebar';
@@ -12,17 +12,20 @@ import SignupPage from './pages/SignupPage';
 import EditProfilePage from './pages/EditProfilePage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage'; // 1. Import the new page
+import OnboardingPage from './pages/OnboardingPage';
 import './App.css';
 
 const AppContent = () => {
   const { session } = useUser();
+  const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const isOnboarding = location.pathname === '/onboarding';
 
   return (
     <div className="app-layout">
-      {session && <Sidebar isOpen={isSidebarOpen} onLinkClick={() => setIsSidebarOpen(false)} />}
+      {session && !isOnboarding && <Sidebar isOpen={isSidebarOpen} onLinkClick={() => setIsSidebarOpen(false)} />}
       <div className="main-content-wrapper">
-        {session && <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />}
+        {session && !isOnboarding && <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />}
         <div className="page-content">
           <Routes>
             {/* Public routes */}
@@ -33,6 +36,7 @@ const AppContent = () => {
 
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
+              <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/" element={<DashboardPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/edit-profile" element={<EditProfilePage />} />

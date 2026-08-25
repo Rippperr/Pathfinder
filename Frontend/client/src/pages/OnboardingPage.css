@@ -1,0 +1,77 @@
+.onboarding-page {
+  display: grid;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  place-items: center;
+  background: linear-gradient(135deg, #eff6ff, #f8fafc 55%, #ecfdf5);
+}
+
+.onboarding-card {
+  width: min(100%, 760px);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.onboarding-step {
+  margin: 0 0 0.6rem;
+  color: #2563eb;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.onboarding-card h1 {
+  margin: 0;
+  color: #172554;
+}
+
+.onboarding-intro {
+  max-width: 60ch;
+  margin: 0.75rem 0 1.75rem;
+  color: #475569;
+  line-height: 1.55;
+}
+
+.onboarding-form .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.onboarding-form .form-group {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.onboarding-form .full-width {
+  grid-column: 1 / -1;
+}
+
+.onboarding-form input,
+.onboarding-form select,
+.onboarding-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.onboarding-error {
+  color: #b91c1c;
+}
+
+@media (max-width: 600px) {
+  .onboarding-page {
+    padding: 1rem;
+  }
+
+  .onboarding-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .onboarding-form .full-width {
+    grid-column: auto;
+  }
+}

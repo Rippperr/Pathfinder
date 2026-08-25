@@ -7,17 +7,25 @@
   padding: 0.75rem 1rem;
   font-size: 1rem;
   text-align: left;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background-color: var(--sidebar-bg);
-  color: var(--text-secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border); /* Updated border */
+  background-color: var(--foreground); /* White background */
+  color: var(--text-secondary); /* Grey text */
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.dropdown-button:hover {
+    border-color: #cbd5e1; /* Darker border on hover */
+}
+.dropdown-button:focus, .dropdown-button.open { /* Style when open or focused */
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); /* Blue ring */
 }
 
-/* New CSS to create a chevron arrow */
 .dropdown-arrow {
   border: solid var(--text-secondary);
   border-width: 0 2px 2px 0;
@@ -26,11 +34,9 @@
   transform: rotate(45deg);
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
-
 .dropdown-arrow.open {
   transform: rotate(-135deg);
 }
-
 .dropdown-button:hover .dropdown-arrow {
   border-color: var(--text-primary);
 }
@@ -40,46 +46,37 @@
   top: calc(100% + 5px);
   left: 0;
   width: 100%;
-  background-color: var(--sidebar-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
+  background-color: var(--foreground); /* White background */
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius);
   list-style-type: none;
-  padding: 0.5rem 0;
+  padding: 0.5rem; /* Padding around list */
   margin: 0;
   z-index: 10;
   max-height: 12rem;
   overflow-y: auto;
+  box-shadow: var(--shadow-lg); /* Use shadow */
 }
 
-.dropdown-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.dropdown-list::-webkit-scrollbar-track {
-  background: var(--sidebar-bg);
-  border-radius: 8px;
-}
-
-.dropdown-list::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 8px;
-}
-
-.dropdown-list::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
-}
+/* Scrollbar styles */
+.dropdown-list::-webkit-scrollbar { width: 8px; }
+.dropdown-list::-webkit-scrollbar-track { background: transparent; }
+.dropdown-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+.dropdown-list::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
 .dropdown-list li {
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 0.8rem; /* Adjusted padding */
   cursor: pointer;
-}
-
-.dropdown-list li:hover {
-  background-color: var(--accent-blue);
+  border-radius: 6px; /* Rounded items */
   color: var(--text-primary);
-}
-
-.dropdown-list li.selected {
-  background-color: var(--card-bg);
   font-weight: 500;
+}
+.dropdown-list li:hover {
+  background-color: var(--accent);
+  color: var(--accent-text);
+}
+.dropdown-list li.selected {
+  background-color: #eef2ff; /* Light blue selected */
+  color: var(--accent);
+  font-weight: 600;
 }

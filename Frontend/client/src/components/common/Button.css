@@ -1,33 +1,40 @@
 .btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
+  padding: 0.65rem 1.25rem; /* Adjusted padding */
+  border: 1px solid transparent;
+  border-radius: var(--border-radius);
+  font-size: 0.95rem; /* Slightly smaller font */
+  font-weight: 600; /* Bolder */
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  display: flex;
+  display: inline-flex; /* Use inline-flex */
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  line-height: 1.5; /* Ensure text fits */
 }
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 .btn-primary {
-  background-color: var(--accent-blue);
-  color: white;
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  box-shadow: var(--shadow-sm);
 }
 .btn-primary:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+  box-shadow: var(--shadow-md);
 }
 .btn-secondary {
-  background-color: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
+  background-color: var(--foreground); /* White background */
+  color: var(--text-secondary); /* Grey text */
+  border-color: var(--border); /* Light border */
+  box-shadow: var(--shadow-sm);
 }
 .btn-secondary:hover:not(:disabled) {
-  background-color: var(--card-bg);
+  background-color: #f9fafb; /* Slightly off-white hover */
+  border-color: #cbd5e1; /* Darker border on hover */
   color: var(--text-primary);
 }

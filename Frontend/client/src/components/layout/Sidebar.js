@@ -15,7 +15,7 @@ const Sidebar = ({ isOpen, onLinkClick }) => {
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
-        <span className="sidebar-logo">❑</span>
+        <span className="sidebar-logo">🧭</span> {/* Changed logo */}
         <h2>Pathfinder</h2>
       </div>
       <nav className="sidebar-nav">

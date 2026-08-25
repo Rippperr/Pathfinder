@@ -35,14 +35,13 @@ const Header = ({ onMenuClick }) => {
   return (
     <header className="main-header">
       <div className="header-left">
-        <div className="header-icon-wrapper" onClick={onMenuClick}>
+        <button className="hamburger-menu-button" onClick={onMenuClick}>
           <span>☰</span>
-        </div>
-        <h2>Welcome back, {profile?.name || 'User'}!</h2>
+        </button>
+        <h2 className="header-greeting">Welcome back, {profile?.name || 'User'}!</h2>
       </div>
       <div className="header-right" ref={dropdownRef}>
         <div className="user-avatar-container" onClick={toggleDropdown}>
-          {/* Conditionally render image or placeholder */}
           {profile?.avatar_url ? (
             <img src={profile.avatar_url} alt="User Avatar" className="user-avatar-image" />
           ) : (
@@ -55,12 +54,12 @@ const Header = ({ onMenuClick }) => {
             <ul>
               <li>
                 <Link to="/profile" onClick={() => setIsDropdownOpen(false)}>
-                  <span className="sidebar-icon">👤</span> <span>Profile</span>
+                  <span className="dropdown-icon">👤</span> <span>Profile</span>
                 </Link>
               </li>
               <li>
                 <Link to="/settings" onClick={() => setIsDropdownOpen(false)}>
-                  <span className="sidebar-icon">⚙️</span> <span>Settings</span>
+                  <span className="dropdown-icon">⚙️</span> <span>Settings</span>
                 </Link>
               </li>
             </ul>
@@ -68,7 +67,7 @@ const Header = ({ onMenuClick }) => {
             <ul>
               <li>
                 <button onClick={handleLogout} className="logout-button">
-                  <span className="sidebar-icon">➡️</span> <span>Log out</span>
+                  <span className="dropdown-icon">➡️</span> <span>Log out</span>
                 </button>
               </li>
             </ul>

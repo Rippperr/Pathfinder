@@ -4,6 +4,7 @@ import { useUser } from '../contexts/UserContext';
 import Card from '../components/common/Card';
 import CustomDropdown from '../components/common/CustomDropdown';
 import SkillGapDisplay from '../components/dashboard/SkillGapDisplay';
+import CareerRoadmap from '../components/dashboard/CareerRoadmap';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
@@ -74,6 +75,13 @@ const DashboardPage = () => {
           roleTitle={selectedRole?.title}
         />
       </Card>
+
+      <CareerRoadmap
+        role={selectedRole}
+        skills={skills}
+        userSkillIds={userSkills}
+        courses={courses}
+      />
       
       <div className="recommendations-section">
         <h2>Recommended Learning Resources</h2>

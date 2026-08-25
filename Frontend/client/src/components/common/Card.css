@@ -1,5 +1,13 @@
 .card {
-  background-color: var(--card-bg);
-  border-radius: 12px;
+  background-color: var(--foreground); /* White card */
+  border-radius: var(--border-radius); /* Use global radius */
   padding: 1.5rem;
+  border: 1px solid var(--border); /* Light border */
+  box-shadow: var(--shadow-md); /* Add shadow */
+}
+
+@media (min-width: 768px) {
+    .card {
+        padding: 2rem; /* Larger padding on desktop */
+    }
 }

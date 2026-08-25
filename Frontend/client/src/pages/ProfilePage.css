@@ -1,6 +1,6 @@
 .profile-page h1 {
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 1.8rem; /* Adjusted size */
+  font-weight: 700;
   margin-top: 0;
   margin-bottom: 1.5rem;
 }
@@ -13,126 +13,93 @@
 .profile-card {
   display: flex;
   flex-direction: column;
-  align-items: center; /* This centers everything inside the card */
+  align-items: center;
   text-align: center;
-  padding: 2rem;
 }
 .profile-avatar-large {
-  width: 128px;
-  height: 128px;
+  width: 120px; /* Slightly smaller */
+  height: 120px;
   border-radius: 50%;
   margin-bottom: 1rem;
-  border: 4px solid var(--background);
-  outline: 1px solid var(--border-color);
+  border: 4px solid var(--foreground); /* White border */
+  outline: 1px solid var(--border); /* Subtle outer line */
+  box-shadow: var(--shadow-md);
 }
-.profile-header {
-  width: 100%;
-}
-.profile-card h2 { margin: 0.5rem 0 0 0; font-size: 1.5rem; color: var(--text-primary); }
-.profile-title { color: var(--text-secondary); margin-top: 0.25rem; }
-.profile-email { color: var(--accent-blue); margin-top: 0.5rem; font-size: 0.9rem; }
-.profile-divider {
-  height: 1px;
-  width: 100%;
-  background-color: var(--border-color);
-  margin: 1.5rem 0;
-}
+.profile-header { width: 100%; }
+.profile-card h2 { margin: 0.5rem 0 0 0; font-size: 1.4rem; color: var(--text-primary); }
+.profile-title { color: var(--text-secondary); margin-top: 0.25rem; font-size: 0.95rem; }
+.profile-email { color: var(--accent); margin-top: 0.5rem; font-size: 0.9rem; }
+.profile-divider { height: 1px; width: 100%; background-color: var(--border); margin: 1.5rem 0; }
 .profile-details-grid {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.75rem 1.5rem;
   text-align: left;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem; /* Reduced margin */
   color: var(--text-secondary);
+  font-size: 0.9rem; /* Smaller details */
 }
 .profile-details-grid span:nth-child(odd) { font-weight: 500; color: var(--text-primary); }
-.profile-actions-footer {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: center; /* This specifically centers the button */
-}
-.profile-edit-button {
+.profile-actions-footer { width: 100%; margin-top: 1rem; } /* Added margin */
+.profile-edit-button { /* Now uses .btn-secondary styles */
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.75rem 1.25rem;
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
 }
-.profile-edit-button:hover {
-  background-color: var(--border-color);
-}
-.edit-details {
-  width: 100%;
-  text-align: center;
-}
+.edit-details { width: 100%; text-align: center; margin-bottom: 1rem; }
 .profile-input {
   width: 90%;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background-color: var(--sidebar-bg);
-  color: white;
+  padding: 0.6rem; /* Adjusted padding */
+  font-size: 0.95rem; /* Adjusted size */
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border);
+  background-color: #f8fafc; /* Lighter input background */
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
   text-align: center;
 }
 .profile-right-column { display: flex; flex-direction: column; gap: 2rem; }
-.skills-card, .goals-card, .achievements-card { padding: 2rem; }
 .skills-card h3, .goals-card h3, .achievements-card h3 { 
   margin-top: 0; 
-  font-size: 1.25rem; 
+  font-size: 1.15rem; /* Adjusted size */
   font-weight: 600; 
+  margin-bottom: 1rem; /* Added margin */
 }
 .skills-list { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
 .skill-badge-removable { 
-  background-color: var(--border-color);
-  color: var(--text-primary);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  background-color: #e2e8f0; /* Light grey badge */
+  color: var(--text-primary); /* Dark text */
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
   font-weight: 500;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
-.remove-icon {
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-}
-.remove-icon:hover { color: var(--text-primary); }
+.remove-icon { cursor: pointer; font-weight: bold; color: var(--text-secondary); }
+.remove-icon:hover { color: var(--danger); }
 .add-skill-button {
   background: transparent;
-  border: 1px dashed var(--border-color);
+  border: 1px dashed var(--border); /* Dashed border */
   color: var(--text-secondary);
-  padding: 0.75rem;
-  width: 100%;
-  border-radius: 8px;
+  padding: 0.6rem; /* Smaller padding */
+  width: auto; /* Allow button to size naturally */
+  border-radius: var(--border-radius);
   font-weight: 500;
   font-size: 0.9rem;
   cursor: pointer;
-  display: flex;
+  display: inline-flex; /* Use inline-flex */
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   transition: all 0.2s ease;
-  margin-top: 1.5rem;
+  margin-top: 0; /* Remove top margin */
 }
 .add-skill-button:hover {
-  background-color: var(--card-bg);
+  background-color: #f3f4f6;
   color: var(--text-primary);
   border-color: var(--text-secondary);
 }
@@ -142,52 +109,26 @@
   gap: 0.75rem;
   align-items: center;
 }
-.add-skill-form .custom-dropdown-container {
-  flex-grow: 1;
-}
-.add-skill-form .btn {
-  flex-shrink: 0;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-}
-.goals-card p { margin: 0; color: var(--text-secondary); line-height: 1.6; }
-.achievements-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-.achievement-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-}
+.add-skill-form .custom-dropdown-container { flex-grow: 1; }
+.add-skill-form .btn { flex-shrink: 0; padding: 0.5rem 1rem; font-size: 0.9rem; }
+.goals-card p { margin: 0; color: var(--text-secondary); line-height: 1.6; font-size: 0.95rem; }
+.achievements-list { display: flex; flex-direction: column; gap: 1rem; }
+.achievement-item { display: flex; align-items: flex-start; gap: 0.75rem; }
 .achievement-dot {
-  width: 12px;
-  height: 12px;
+  width: 8px; /* Smaller dot */
+  height: 8px;
   border-radius: 50%;
-  margin-top: 5px;
+  margin-top: 6px; /* Align with text */
   flex-shrink: 0;
+  background-color: var(--text-secondary); /* Default color */
 }
-.dot-green { background-color: var(--accent-green); }
-.dot-blue { background-color: var(--accent-blue); }
-.dot-purple { background-color: #a78bfa; }
-.achievement-text {
-  display: flex;
-  flex-direction: column;
-}
-.achievement-title {
-  margin: 0;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-.achievement-subtitle {
-  margin: 0.25rem 0 0 0;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
+.dot-green { background-color: var(--success); }
+.dot-blue { background-color: var(--accent); }
+.dot-purple { background-color: #8b5cf6; } /* Tailwind purple */
+.achievement-text { display: flex; flex-direction: column; }
+.achievement-title { margin: 0; font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
+.achievement-subtitle { margin: 0.1rem 0 0 0; color: var(--text-secondary); font-size: 0.85rem; }
 
 @media (min-width: 992px) {
-  .profile-grid {
-    grid-template-columns: 320px 1fr;
-  }
+  .profile-grid { grid-template-columns: 320px 1fr; }
 }

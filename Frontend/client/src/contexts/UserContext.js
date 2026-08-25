@@ -67,6 +67,7 @@ export const UserProvider = ({ children }) => {
     session,
     profile,
     loading,
+    refetchProfile: () => fetchProfile(session?.user),
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

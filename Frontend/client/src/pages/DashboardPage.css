@@ -1,21 +1,17 @@
 .dashboard-page h1 {
-  font-size: 2rem;
+  font-size: 1.8rem; /* Slightly smaller */
   font-weight: 700;
   margin-top: 0;
   margin-bottom: 1.5rem;
 }
 
+/* Remove margin from custom dropdown container */
 .dashboard-page .custom-dropdown-container {
   margin-bottom: 2rem;
 }
 
-.skill-gap-analysis {
-  display: flex;
-  flex-direction: column;
-}
-
 .skill-gap-analysis h2 {
-  font-size: 1.25rem;
+  font-size: 1.15rem; /* Adjusted size */
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 1.5rem;
@@ -30,9 +26,11 @@
 .skill-column h3 {
   margin-top: 0;
   margin-bottom: 1rem;
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 0.9rem; /* Smaller subheadings */
+  font-weight: 600; /* Bolder */
   color: var(--text-secondary);
+  text-transform: uppercase; /* Uppercase */
+  letter-spacing: 0.05em; /* Add letter spacing */
 }
 
 .badges-container {
@@ -42,17 +40,27 @@
 }
 
 .skill-badge {
-  background-color: var(--sidebar-bg);
-  color: var(--text-primary);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  background-color: #e2e8f0; /* Light grey badge */
+  color: var(--text-primary); /* Dark text */
+  padding: 0.4rem 0.8rem; /* Adjusted padding */
+  border-radius: 6px; /* Slightly less rounded */
+  font-size: 0.85rem;
   font-weight: 500;
 }
 
+.skill-badge.matched {
+  background-color: var(--success);
+  color: var(--accent-text);
+}
+
+.skill-badge.missing {
+  background-color: var(--warning);
+  color: #573a0a; /* Dark text for orange */
+}
+
 .placeholder-text {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
 }
 
 .recommendations-section {
@@ -60,9 +68,9 @@
 }
 
 .recommendations-section h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
+  font-size: 1.15rem; /* Adjusted size */
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
 .courses-grid {
@@ -71,10 +79,30 @@
   gap: 1.5rem;
 }
 
-.course-placeholder {
+.course-image { /* Style for actual images when added */
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px; /* Match other elements */
+  margin-bottom: 1rem;
+  background-color: #e2e8f0; /* Placeholder color */
+}
+
+.courses-grid h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+.courses-grid p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.course-placeholder { /* If using placeholders */
     height: 150px;
-    background-color: var(--sidebar-bg);
-    border-radius: 8px;
+    background-color: #e2e8f0; /* Light grey */
+    border-radius: 6px;
 }
 
 @media (min-width: 768px) {

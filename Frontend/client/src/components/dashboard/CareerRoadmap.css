@@ -1,0 +1,113 @@
+.career-roadmap {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.roadmap-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.roadmap-heading h2,
+.roadmap-action h3,
+.roadmap-complete h3 {
+  margin: 0;
+  color: #172554;
+}
+
+.roadmap-eyebrow {
+  margin: 0 0 0.25rem;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.roadmap-progress-value {
+  color: #2563eb;
+  font-size: 1.05rem;
+  white-space: nowrap;
+}
+
+.roadmap-progress-track {
+  height: 0.65rem;
+  margin: 1.25rem 0 0.75rem;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #e2e8f0;
+}
+
+.roadmap-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2563eb, #22c55e);
+  transition: width 0.25s ease;
+}
+
+.roadmap-summary,
+.roadmap-empty > p,
+.roadmap-action p,
+.roadmap-complete p {
+  color: #475569;
+}
+
+.roadmap-actions {
+  display: grid;
+  gap: 0.9rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.roadmap-action {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.roadmap-action h3 {
+  font-size: 1rem;
+}
+
+.roadmap-action p,
+.roadmap-complete p {
+  margin: 0.4rem 0 0;
+  line-height: 1.5;
+}
+
+.roadmap-week {
+  flex: 0 0 auto;
+  height: fit-content;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.roadmap-complete {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: #ecfdf5;
+}
+
+@media (max-width: 560px) {
+  .career-roadmap {
+    padding: 1rem;
+  }
+
+  .roadmap-heading {
+    flex-direction: column;
+  }
+}
