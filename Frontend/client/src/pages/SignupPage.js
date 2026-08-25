@@ -12,7 +12,13 @@ const SignupPage = () => {
   const handleSignup = async (event) => {
     event.preventDefault();
     try {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/onboarding`,
+        },
+      });
       if (error) throw error;
       alert('Signup successful! Please check your email to verify.');
     } catch (error) {
