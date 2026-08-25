@@ -7,7 +7,11 @@ jest.mock('./supabaseClient', () => ({
       signInWithPassword: jest.fn(),
       signUp: jest.fn(),
     },
-    from: jest.fn(),
+    from: jest.fn(() => ({
+      select: jest.fn(() => ({
+        order: jest.fn().mockResolvedValue({ data: [], error: null }),
+      })),
+    })),
   },
 }));
 

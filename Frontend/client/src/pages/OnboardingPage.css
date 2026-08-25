@@ -58,6 +58,48 @@
   font: inherit;
 }
 
+.onboarding-skills {
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.onboarding-skills legend {
+  padding: 0 0.3rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.onboarding-skills p {
+  margin: 0 0 0.85rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.onboarding-skill-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.onboarding-skill-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  cursor: pointer;
+}
+
+.onboarding-skill-option input {
+  width: auto;
+  margin: 0;
+}
+
 .onboarding-error {
   color: #b91c1c;
 }
