@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../supabaseClient';
 
 const UserContext = createContext();
@@ -7,6 +7,7 @@ export const UserProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const activeUserId = useRef(null);
 
   // Function to fetch the profile with built-in retry logic
   const fetchProfile = useCallback(async (user, retries = 3) => {
@@ -47,17 +48,20 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    // Initial load
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // INITIAL_SESSION is the single source of truth for startup. Token refreshes
+    // update the session but must not reload the profile or remount protected pages.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
-      fetchProfile(session?.user);
-    });
-
-    // Listener for auth state changes (login/logout)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      // Immediately refetch profile on login
-      fetchProfile(session?.user);
+      if (!session) {
+        activeUserId.current = null;
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+      if (event === 'INITIAL_SESSION' || activeUserId.current !== session.user.id) {
+        activeUserId.current = session.user.id;
+        fetchProfile(session.user);
+      }
     });
 
     return () => subscription.unsubscribe();

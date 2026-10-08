@@ -16,6 +16,7 @@ const DashboardPage = () => {
   const [userSkills, setUserSkills] = useState([]);
   const [selectedRoleId, setSelectedRoleId] = useState('');
   const [learningPreferences, setLearningPreferences] = useState({ learningStyle: 'balanced', weeklyHours: '4' });
+  const roleSelectionKey = session?.user?.id ? `pathfinder-dashboard-role:${session.user.id}` : null;
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -55,10 +56,13 @@ const DashboardPage = () => {
   }, [session]);
 
   useEffect(() => {
-    if (selectedRoleId || !profile?.desired_role || !roles.length) return;
-    const targetRole = roles.find((role) => normalizeCareerTitle(role.title) === normalizeCareerTitle(profile.desired_role));
+    if (selectedRoleId || !roles.length) return;
+    let savedRoleTitle = '';
+    try { savedRoleTitle = roleSelectionKey ? localStorage.getItem(roleSelectionKey) || '' : ''; } catch { /* storage may be unavailable */ }
+    const targetRole = roles.find((role) => normalizeCareerTitle(role.title) === normalizeCareerTitle(savedRoleTitle))
+      || roles.find((role) => normalizeCareerTitle(role.title) === normalizeCareerTitle(profile.desired_role));
     if (targetRole) setSelectedRoleId(targetRole.id);
-  }, [profile?.desired_role, roles, selectedRoleId]);
+  }, [profile?.desired_role, roles, selectedRoleId, roleSelectionKey]);
 
   const selectedRole = roles.find(role => role.id === selectedRoleId);
 
@@ -88,6 +92,7 @@ const DashboardPage = () => {
 
   const handleRoleChange = (role) => {
     setSelectedRoleId(role.id);
+    try { if (roleSelectionKey) localStorage.setItem(roleSelectionKey, role.title); } catch { /* selection remains available for this visit */ }
   };
   
   return (
