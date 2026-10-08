@@ -123,3 +123,24 @@
   color: #e9f3ff;
   background: #091a2f;
 }
+
+.edit-profile-heading { margin: 0 0 1.7rem; }
+.edit-profile-heading h1 { margin: 0; color: #f5f9ff; font-size: clamp(2.2rem, 4vw, 3rem); letter-spacing: -0.075em; }
+.edit-profile-heading > p:last-child { margin: 0.65rem 0 0; color: #a9bfd8; font-size: 0.95rem; line-height: 1.55; }
+.edit-profile-page form { gap: 1.1rem; }
+.edit-profile-page .card { border: 1px solid rgba(171, 200, 239, 0.16); border-radius: 1.1rem; background: linear-gradient(145deg, rgba(18, 43, 72, 0.94), rgba(10, 28, 50, 0.96)); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15); }
+.edit-profile-page .card h3 { color: #edf5ff; }
+.avatar-upload-section { align-items: center; gap: 1.2rem; }
+.edit-avatar, .edit-avatar-empty { display: grid; flex: 0 0 88px; width: 88px; height: 88px; place-items: center; overflow: hidden; border: 1px solid rgba(121, 226, 195, 0.4); border-radius: 50%; background: linear-gradient(145deg, rgba(121, 226, 195, 0.08), rgba(124, 157, 255, 0.1)); object-fit: cover; }
+.edit-avatar-empty span { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border: 1px solid rgba(121, 226, 195, 0.42); border-radius: 50%; color: #8be6cc; font-size: 1.2rem; }
+.avatar-upload-copy { display: grid; justify-items: start; gap: 0.4rem; }
+.avatar-upload-copy > b { color: #e5effc; font-size: 0.92rem; }
+.avatar-upload-copy > p { margin: 0; color: #8ea6c6; font-size: 0.78rem; }
+#avatar-upload { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+#avatar-upload:focus-visible + .upload-label { outline: 2px solid #79e2c3; outline-offset: 3px; }
+.upload-label { display: inline-flex; align-items: center; justify-content: center; min-height: 2.3rem; padding: 0.5rem 0.8rem; border-radius: 0.65rem; color: #071323; background: #79e2c3; font-size: 0.78rem; font-weight: 800; }
+.edit-profile-error, .edit-profile-success { margin: 0; font-size: 0.85rem; line-height: 1.5; }
+.edit-profile-error { color: #ff9da6; }
+.edit-profile-success { color: #8fe7cd; }
+.edit-profile-page > form > .btn { align-self: flex-start; min-width: 180px; min-height: 2.8rem; }
+@media (max-width: 500px) { .avatar-upload-section { align-items: flex-start; }.edit-profile-page > form > .btn { width: 100%; } }

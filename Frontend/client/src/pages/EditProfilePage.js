@@ -22,6 +22,9 @@ const EditProfilePage = () => {
   const [achievements, setAchievements] = useState([]);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [photoError, setPhotoError] = useState('');
+  const [saveError, setSaveError] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState('');
 
   useEffect(() => {
     if (contextProfile) {
@@ -63,15 +66,27 @@ const EditProfilePage = () => {
     const file = event.target.files[0];
     if (!file) return;
 
+    setPhotoError('');
+    setSaveError('');
+    setSaveSuccess('');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setPhotoError('Choose a JPG, PNG, or WebP image.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setPhotoError('Your photo must be smaller than 5 MB.');
+      return;
+    }
+
     setUploading(true);
-    const fileName = `${session.user.id}/${Date.now()}`;
+    const extension = file.type === 'image/jpeg' ? 'jpg' : file.type.split('/')[1];
+    const fileName = `${session.user.id}/profile-${Date.now()}.${extension}`;
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(fileName, file);
+      .upload(fileName, file, { contentType: file.type, cacheControl: '3600' });
     
     if (uploadError) {
-      alert('Error uploading avatar.');
-      console.error(uploadError);
+      setPhotoError(`Could not upload this photo: ${uploadError.message}`);
     } else {
       const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
       setAvatarUrl(data.publicUrl);
@@ -82,11 +97,19 @@ const EditProfilePage = () => {
   const handleSave = async (event) => {
     event.preventDefault();
     setLoading(true);
+    setSaveError('');
+    setSaveSuccess('');
 
     const { error: profileError } = await supabase
       .from('users')
       .update({ name, title, desired_role: desiredRole, department, experience, location, career_goals: careerGoals, avatar_url: avatarUrl })
       .eq('id', session.user.id);
+
+    if (profileError) {
+      setSaveError(`Could not save your profile: ${profileError.message}`);
+      setLoading(false);
+      return;
+    }
 
     const { error: deleteError } = await supabase
       .from('achievements')
@@ -97,19 +120,20 @@ const EditProfilePage = () => {
       .filter(a => a.title)
       .map(a => ({ user_id: session.user.id, title: a.title, subtitle: a.subtitle }));
     
-    const { error: achievementsError } = await supabase
-      .from('achievements')
-      .insert(achievementsToInsert);
+    const { error: achievementsError } = deleteError
+      ? { error: null }
+      : achievementsToInsert.length
+        ? await supabase.from('achievements').insert(achievementsToInsert)
+        : { error: null };
 
-    if (profileError || deleteError || achievementsError) {
-      alert('An error occurred while saving.');
+    if (deleteError || achievementsError) {
+      setSaveError(`Your profile photo and details were saved, but achievements could not be updated: ${(deleteError || achievementsError).message}`);
       setLoading(false);
     } else {
-      // Call the refetch function after successful save
       await refetchProfile(); 
       setLoading(false);
-      alert('Profile saved successfully!');
-      navigate('/profile');
+      setSaveSuccess('Your profile has been saved.');
+      navigate('/profile', { state: { profileSaved: true } });
     }
   };
 
@@ -117,14 +141,23 @@ const EditProfilePage = () => {
 
   return (
     <div className="edit-profile-page">
-      <h1>Complete Your Profile</h1>
+      <header className="edit-profile-heading">
+        <p className="profile-eyebrow">YOUR PATHFINDER SPACE</p>
+        <h1>Edit your profile</h1>
+        <p>Update your photo, career details, and the milestones you want to keep.</p>
+      </header>
       <form onSubmit={handleSave}>
         <Card>
-          <h3>Profile Picture</h3>
+          <h3>Profile photo</h3>
           <div className="avatar-upload-section">
-            <img src={avatarUrl || `https://i.pravatar.cc/150?u=${session.user.id}`} alt="Avatar" className="edit-avatar" />
-            <input type="file" id="avatar-upload" onChange={handleAvatarUpload} disabled={uploading} accept="image/*" />
-            <label htmlFor="avatar-upload" className="upload-label">{uploading ? 'Uploading...' : 'Upload Image'}</label>
+            {avatarUrl ? <img src={avatarUrl} alt="Your profile" className="edit-avatar" /> : <div className="edit-avatar-empty" aria-label="No profile photo added"><span aria-hidden="true">+</span></div>}
+            <div className="avatar-upload-copy">
+              <b>{avatarUrl ? 'Your photo' : 'Add a photo of yourself'}</b>
+              <p>JPG, PNG, or WebP · up to 5 MB</p>
+              <input type="file" id="avatar-upload" onChange={handleAvatarUpload} disabled={uploading || loading} accept="image/jpeg,image/png,image/webp" />
+              <label htmlFor="avatar-upload" className="upload-label">{uploading ? 'Uploading…' : avatarUrl ? 'Choose a different photo' : 'Choose your photo'}</label>
+              {photoError && <p className="edit-profile-error" role="alert">{photoError}</p>}
+            </div>
           </div>
         </Card>
         <Card>
@@ -173,7 +206,9 @@ const EditProfilePage = () => {
           ))}
           <Button type="button" variant="secondary" onClick={addAchievement}>+ Add Achievement</Button>
         </Card>
-        <Button type="submit" disabled={loading}>{loading ? 'Saving...' : 'Save All Changes'}</Button>
+        {saveError && <p className="edit-profile-error" role="alert">{saveError}</p>}
+        {saveSuccess && <p className="edit-profile-success" role="status">{saveSuccess}</p>}
+        <Button type="submit" disabled={loading || uploading}>{loading ? 'Saving…' : uploading ? 'Uploading photo…' : 'Save all changes'}</Button>
       </form>
     </div>
   );
