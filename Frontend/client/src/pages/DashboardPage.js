@@ -16,7 +16,9 @@ const DashboardPage = () => {
   const [userSkills, setUserSkills] = useState([]);
   const [selectedRoleId, setSelectedRoleId] = useState('');
   const [learningPreferences, setLearningPreferences] = useState({ learningStyle: 'balanced', weeklyHours: '4' });
+  const [roleSaveState, setRoleSaveState] = useState('');
   const roleSelectionKey = session?.user?.id ? `pathfinder-dashboard-role:${session.user.id}` : null;
+  const savedAccountRole = session?.user?.user_metadata?.last_selected_role || '';
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -59,10 +61,11 @@ const DashboardPage = () => {
     if (selectedRoleId || !roles.length) return;
     let savedRoleTitle = '';
     try { savedRoleTitle = roleSelectionKey ? localStorage.getItem(roleSelectionKey) || '' : ''; } catch { /* storage may be unavailable */ }
-    const targetRole = roles.find((role) => normalizeCareerTitle(role.title) === normalizeCareerTitle(savedRoleTitle))
-      || roles.find((role) => normalizeCareerTitle(role.title) === normalizeCareerTitle(profile.desired_role));
+    const targetRole = roles.find((role) => normalizeCareerTitle(role.title) === normalizeCareerTitle(savedAccountRole))
+      || roles.find((role) => normalizeCareerTitle(role.title) === normalizeCareerTitle(savedRoleTitle))
+      || roles.find((role) => normalizeCareerTitle(role.title) === normalizeCareerTitle(profile?.desired_role || ''));
     if (targetRole) setSelectedRoleId(targetRole.id);
-  }, [profile?.desired_role, roles, selectedRoleId, roleSelectionKey]);
+  }, [profile?.desired_role, roles, selectedRoleId, roleSelectionKey, savedAccountRole]);
 
   const selectedRole = roles.find(role => role.id === selectedRoleId);
 
@@ -90,9 +93,12 @@ const DashboardPage = () => {
     return [...base].sort((a, b) => Number(preferredFormat(b)) - Number(preferredFormat(a)));
   }, [selectedRole, userSkills, requiredSkillsForRole, skills, learningPreferences]);
 
-  const handleRoleChange = (role) => {
+  const handleRoleChange = async (role) => {
     setSelectedRoleId(role.id);
     try { if (roleSelectionKey) localStorage.setItem(roleSelectionKey, role.title); } catch { /* selection remains available for this visit */ }
+    setRoleSaveState('saving');
+    const { error } = await supabase.auth.updateUser({ data: { last_selected_role: role.title } });
+    setRoleSaveState(error ? 'error' : 'saved');
   };
   
   return (
@@ -111,6 +117,7 @@ const DashboardPage = () => {
         placeholder="Select your target role"
         displayKey="title"
       />
+      {roleSaveState && <p className={`dashboard-role-save ${roleSaveState}`} role="status">{roleSaveState === 'saving' ? 'Saving your target role to your account…' : roleSaveState === 'saved' ? 'Your target role is saved to your account.' : 'Could not sync this role to your account. It is saved in this browser.'}</p>}
 
       <Card>
         <SkillGapDisplay 
