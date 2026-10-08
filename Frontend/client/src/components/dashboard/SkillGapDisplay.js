@@ -12,9 +12,9 @@ const SkillGapDisplay = ({ userSkills, requiredSkills, allSkills, roleTitle }) =
         <div className="skill-column">
           <h3>My Current Skills</h3>
           <div className="badges-container">
-            {userSkillObjects.map(skill => (
+            {userSkillObjects.length ? userSkillObjects.map(skill => (
               <span key={skill.id} className="skill-badge">{skill.name}</span>
-            ))}
+            )) : <p className="skill-gap-empty">Add skills to your profile to see which requirements you already meet.</p>}
           </div>
         </div>
         <div className="skill-column">

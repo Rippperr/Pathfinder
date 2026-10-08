@@ -8,6 +8,10 @@
   background: #ffffff;
 }
 
+.roadmap-action-content { min-width: 0; }
+.roadmap-resource-link { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.55rem; color: #8fe7cd; font-size: 0.78rem; font-weight: 750; }
+.roadmap-resource-link:hover { color: #c6ffed; }
+
 .roadmap-heading {
   display: flex;
   align-items: flex-start;

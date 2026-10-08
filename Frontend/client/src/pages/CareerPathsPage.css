@@ -38,6 +38,14 @@
 .role-expanded-details { display: grid; gap: 0.8rem; margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid rgba(171, 200, 239, 0.12); }
 .role-expanded-details h3 { margin: 0 0 0.3rem; color: #8ee5cd; font-size: 0.73rem; font-weight: 800; letter-spacing: 0.03em; }
 .role-expanded-details p { margin: 0; color: #a9bfd8; font-size: 0.77rem; line-height: 1.55; }
+.role-expanded-details ul { display: grid; gap: 0.35rem; margin: 0; padding-left: 1rem; color: #a9bfd8; font-size: 0.77rem; line-height: 1.5; }
+.role-skill-chips-expanded { margin-top: 0; }
+.role-learning-links { display: grid; gap: 0.45rem; }
+.role-learning-links a { display: flex; align-items: center; justify-content: space-between; gap: 0.7rem; padding: 0.65rem; border: 1px solid rgba(171, 200, 239, 0.13); border-radius: 0.65rem; color: #dceafa; background: rgba(6, 19, 36, 0.38); }
+.role-learning-links a:hover { border-color: rgba(121, 226, 195, 0.32); color: #a1efd9; }
+.role-learning-links b, .role-learning-links small { display: block; }
+.role-learning-links b { font-size: 0.76rem; }
+.role-learning-links small { margin-top: 0.18rem; color: #829bb9; font-size: 0.67rem; }
 .role-details-toggle { display: flex; width: 100%; align-items: center; justify-content: space-between; margin-top: auto; padding: 0.85rem 0 0; border: 0; color: #8fe7cd; background: transparent; cursor: pointer; font: inherit; font-size: 0.77rem; font-weight: 800; text-align: left; }
 .role-details-toggle:hover { color: #c6ffed; }
 .role-empty-state { padding: 1.1rem; border: 1px dashed rgba(171, 200, 239, 0.2); border-radius: 0.8rem; color: #9db4d2; background: rgba(12, 31, 54, 0.4); font-size: 0.88rem; }

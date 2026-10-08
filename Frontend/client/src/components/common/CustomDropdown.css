@@ -76,7 +76,13 @@
   color: var(--accent-text);
 }
 .dropdown-list li.selected {
-  background-color: #eef2ff; /* Light blue selected */
-  color: var(--accent);
+  border: 1px solid rgba(112, 223, 191, 0.18);
+  background-color: rgba(112, 223, 191, 0.1);
+  color: #9aefd8;
   font-weight: 600;
 }
+.dropdown-button { border-color: rgba(171, 204, 243, 0.2); color: #e7f0ff; background: linear-gradient(145deg, rgba(18, 43, 72, 0.96), rgba(10, 28, 50, 0.98)); }
+.dropdown-button:hover { border-color: rgba(112, 223, 191, 0.42); }
+.dropdown-button:focus { border-color: rgba(112, 223, 191, 0.62); box-shadow: 0 0 0 3px rgba(112, 223, 191, 0.1); }
+.dropdown-list { border-color: rgba(171, 200, 239, 0.19); background: #0d2139; }
+.dropdown-list li:hover { color: #071323; background-color: #70dfbf; }

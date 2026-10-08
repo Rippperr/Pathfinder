@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../contexts/UserContext';
+import { careerRoleGuides } from '../data/careerCatalog';
 import './OnboardingPage.css';
 
 const categoryForSkill = (skill) => {
@@ -162,7 +163,7 @@ const OnboardingPage = () => {
               <div className="form-group">
                 <label htmlFor="onboarding-desired-role">Desired role <i>*</i></label>
                 <input id="onboarding-desired-role" list="pathfinder-role-options" value={form.desiredRole} onChange={updateField('desiredRole')} placeholder="e.g. AI Engineer, Data Engineer" required />
-                <datalist id="pathfinder-role-options">{roleTitles.map((title) => <option value={title} key={title} />)}</datalist>
+                <datalist id="pathfinder-role-options">{[...new Set([...careerRoleGuides.map((role) => role.title), ...roleTitles])].map((title) => <option value={title} key={title} />)}</datalist>
               </div>
               <div className="form-group">
                 <label htmlFor="onboarding-experience">Experience <i>*</i></label>

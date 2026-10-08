@@ -5,41 +5,48 @@ import Card from '../components/common/Card';
 import CustomDropdown from '../components/common/CustomDropdown';
 import SkillGapDisplay from '../components/dashboard/SkillGapDisplay';
 import CareerRoadmap from '../components/dashboard/CareerRoadmap';
+import { getCareerRoleCatalog, getCareerSkillCatalog, normalizeCareerTitle } from '../data/careerCatalog';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
   const { session, profile } = useUser();
   const [roles, setRoles] = useState([]);
   const [skills, setSkills] = useState([]);
-  const [courses, setCourses] = useState([]);
   const [userSkills, setUserSkills] = useState([]);
   const [selectedRoleId, setSelectedRoleId] = useState('');
 
   useEffect(() => {
     const getPageData = async () => {
-      const { data: rolesData } = await supabase.from('roles').select('*, role_skills(skill_id)');
-      if (rolesData) {
-        setRoles(rolesData);
-        const targetRole = profile?.desired_role?.trim().toLowerCase();
-        if (targetRole) {
-          const matchedRole = rolesData.find((role) => role.title.trim().toLowerCase() === targetRole);
-          if (matchedRole) setSelectedRoleId(matchedRole.id);
-        }
+      let rolesData = [];
+      let skillsData = [];
+      let userSkillsData = [];
+      try {
+        const results = await Promise.all([
+          supabase.from('roles').select('*, role_skills(skill_id)'),
+          supabase.from('skills').select('*').order('name'),
+          supabase.from('user_skills').select('skill_id').eq('user_id', session.user.id),
+        ]);
+        rolesData = results[0].data || [];
+        skillsData = results[1].data || [];
+        userSkillsData = results[2].data || [];
+      } catch (error) {
+        console.warn('Using Pathfinder’s built-in career catalog because Supabase data is unavailable.', error);
       }
-      
-      const { data: skillsData } = await supabase.from('skills').select('*');
-      if (skillsData) setSkills(skillsData);
+      const mergedSkills = getCareerSkillCatalog(skillsData || []);
+      const mergedRoles = getCareerRoleCatalog(rolesData || [], mergedSkills);
+      setSkills(mergedSkills);
+      setRoles(mergedRoles);
+      setUserSkills(userSkillsData.map((skill) => skill.skill_id));
 
-      const { data: coursesData } = await supabase.from('courses').select('*, course_skills(skill_id)');
-      if (coursesData) setCourses(coursesData);
-
-      if (session?.user) {
-        const { data: userSkillsData } = await supabase.from('user_skills').select('skill_id').eq('user_id', session.user.id);
-        if (userSkillsData) setUserSkills(userSkillsData.map(s => s.skill_id));
-      }
     };
     getPageData();
-  }, [session, profile?.desired_role]);
+  }, [session]);
+
+  useEffect(() => {
+    if (selectedRoleId || !profile?.desired_role || !roles.length) return;
+    const targetRole = roles.find((role) => normalizeCareerTitle(role.title) === normalizeCareerTitle(profile.desired_role));
+    if (targetRole) setSelectedRoleId(targetRole.id);
+  }, [profile?.desired_role, roles, selectedRoleId]);
 
   const selectedRole = roles.find(role => role.id === selectedRoleId);
 
@@ -48,15 +55,17 @@ const DashboardPage = () => {
     return selectedRole.role_skills.map(rs => rs.skill_id);
   }, [selectedRole]);
 
-  const recommendedCourses = useMemo(() => {
+  const recommendedLearningResources = useMemo(() => {
     if (!selectedRole) return [];
-    const missingSkillIds = requiredSkillsForRole.filter(id => !userSkills.includes(id));
-    if (missingSkillIds.length === 0) return [];
-    const recommendations = courses.filter(course => 
-      course.course_skills.some(cs => missingSkillIds.includes(cs.skill_id))
-    );
-    return recommendations;
-  }, [selectedRole, userSkills, courses, requiredSkillsForRole]);
+    const missingSkillNames = requiredSkillsForRole
+      .filter((id) => !userSkills.includes(id))
+      .map((id) => skills.find((skill) => skill.id === id)?.name)
+      .filter(Boolean);
+    const resources = selectedRole.learningResources || [];
+    if (!missingSkillNames.length) return resources;
+    const filtered = resources.filter((resource) => resource.skillNames.some((name) => missingSkillNames.includes(name)));
+    return filtered.length ? filtered : resources;
+  }, [selectedRole, userSkills, requiredSkillsForRole, skills]);
 
   const handleRoleChange = (role) => {
     setSelectedRoleId(role.id);
@@ -87,30 +96,26 @@ const DashboardPage = () => {
         />
       </Card>
 
-      <CareerRoadmap
-        role={selectedRole}
-        skills={skills}
-        userSkillIds={userSkills}
-        courses={courses}
-      />
+      <CareerRoadmap role={selectedRole} skills={skills} userSkillIds={userSkills} />
       
       <div className="recommendations-section">
         <h2>Focused learning resources</h2>
         <div className="courses-grid">
           {selectedRole ? (
-            recommendedCourses.length > 0 ? (
-              recommendedCourses.map(course => (
-                <Card key={course.id}>
-                  <img src={course.image_url} alt={course.title} className="course-image" />
-                  <h3>{course.title}</h3>
-                  <p>{course.type}</p>
+            recommendedLearningResources.length > 0 ? (
+              recommendedLearningResources.map((resource) => (
+                <Card key={`${resource.provider}-${resource.title}`} className="learning-resource-card">
+                  <div className="learning-resource-topline"><span>{resource.provider}</span><span>{resource.format}</span></div>
+                  <h3>{resource.title}</h3>
+                  <p>{resource.description}</p>
+                  <a href={resource.url} target="_blank" rel="noreferrer">Open learning resource <span aria-hidden="true">↗</span></a>
                 </Card>
               ))
             ) : (
-              <p className="placeholder-text">You have all the required skills for this role!</p>
+              <p className="placeholder-text">Resources for this role are being prepared.</p>
             )
           ) : (
-            <p className="placeholder-text">Select a role to see recommendations.</p>
+            <p className="placeholder-text">Select a target role to get courses, official learning paths, and YouTube course playlists.</p>
           )}
         </div>
       </div>
