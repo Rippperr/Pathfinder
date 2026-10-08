@@ -161,50 +161,55 @@ const EditProfilePage = () => {
           </div>
         </Card>
         <Card>
-          <h3>Basic Information</h3>
+          <h3>Career snapshot</h3>
+          <p className="edit-section-description">Keep your present experience and next role distinct so your roadmap can focus on the right gap.</p>
           <div className="form-grid">
             <div className="form-group">
-              <label>Name</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+              <label htmlFor="profile-name">Name</label>
+              <input id="profile-name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Current role</label>
-              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+              <label htmlFor="profile-current-role">Current role</label>
+              <input id="profile-current-role" type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Desired role</label>
-              <input type="text" value={desiredRole} onChange={(e) => setDesiredRole(e.target.value)} placeholder="The role you are working toward" />
+              <label htmlFor="profile-desired-role">Desired role</label>
+              <input id="profile-desired-role" type="text" value={desiredRole} onChange={(e) => setDesiredRole(e.target.value)} placeholder="The role you are working toward" />
             </div>
             <div className="form-group">
-              <label>Department</label>
-              <input type="text" value={department} onChange={(e) => setDepartment(e.target.value)} />
+              <label htmlFor="profile-department">Education or team</label>
+              <input id="profile-department" type="text" value={department} onChange={(e) => setDepartment(e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Experience</label>
-              <input type="text" value={experience} onChange={(e) => setExperience(e.target.value)} />
+              <label htmlFor="profile-experience">Experience</label>
+              <input id="profile-experience" type="text" value={experience} onChange={(e) => setExperience(e.target.value)} />
             </div>
             <div className="form-group full-width">
-              <label>Location</label>
-              <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} />
+              <label htmlFor="profile-location">Location</label>
+              <input id="profile-location" type="text" value={location} onChange={(e) => setLocation(e.target.value)} />
             </div>
           </div>
         </Card>
         <Card>
-          <h3>Career Goals</h3>
+          <h3>Career focus &amp; goals</h3>
+          <p className="edit-section-description">Write a practical outcome you can work toward. Include a target, a proof point, and a timeframe when you can.</p>
           <div className="form-group">
-            <textarea value={careerGoals} onChange={(e) => setCareerGoals(e.target.value)} rows="4" />
+            <label htmlFor="career-goals">Your next career milestone</label>
+            <textarea id="career-goals" value={careerGoals} onChange={(e) => setCareerGoals(e.target.value)} rows="4" placeholder="Example: Move into a junior data analyst role this year by building two SQL and Power BI projects and sharing them in a portfolio." />
           </div>
         </Card>
         <Card>
-          <h3>Recent Achievements</h3>
+          <h3>Recent achievements</h3>
+          <p className="edit-section-description">Show the work and results behind your skills. Projects, certifications, launches, and measurable improvements all count.</p>
+          {achievements.length === 0 && <p className="achievement-empty-state">No achievements added yet. Start with a project or milestone you can explain in an interview.</p>}
           {achievements.map((ach, index) => (
             <div key={index} className="achievement-edit-item">
-              <input type="text" placeholder="Achievement Title" value={ach.title} onChange={(e) => handleAchievementChange(index, 'title', e.target.value)} />
-              <input type="text" placeholder="Subtitle or Description" value={ach.subtitle} onChange={(e) => handleAchievementChange(index, 'subtitle', e.target.value)} />
-              <button type="button" className="remove-button" onClick={() => removeAchievement(index)}>&times;</button>
+              <div className="achievement-input-group"><label htmlFor={`achievement-title-${index}`}>Project or achievement</label><input id={`achievement-title-${index}`} type="text" placeholder="e.g. Customer churn dashboard" value={ach.title} onChange={(e) => handleAchievementChange(index, 'title', e.target.value)} /></div>
+              <div className="achievement-input-group"><label htmlFor={`achievement-result-${index}`}>Result or evidence</label><input id={`achievement-result-${index}`} type="text" placeholder="e.g. Built with SQL and Power BI; surfaced 3 retention trends" value={ach.subtitle} onChange={(e) => handleAchievementChange(index, 'subtitle', e.target.value)} /></div>
+              <button type="button" className="remove-button" onClick={() => removeAchievement(index)} aria-label={`Remove achievement ${index + 1}`}>&times;</button>
             </div>
           ))}
-          <Button type="button" variant="secondary" onClick={addAchievement}>+ Add Achievement</Button>
+          <Button type="button" variant="secondary" onClick={addAchievement}>+ Add a project or achievement</Button>
         </Card>
         {saveError && <p className="edit-profile-error" role="alert">{saveError}</p>}
         {saveSuccess && <p className="edit-profile-success" role="status">{saveSuccess}</p>}

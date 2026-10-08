@@ -24,6 +24,7 @@ const OnboardingPage = () => {
   const [skillsLoading, setSkillsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [skills, setSkills] = useState([]);
+  const [roleTitles, setRoleTitles] = useState([]);
   const [selectedSkillIds, setSelectedSkillIds] = useState([]);
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({
@@ -52,13 +53,15 @@ const OnboardingPage = () => {
   useEffect(() => {
     let active = true;
     const loadSkills = async () => {
-      const [{ data, error }, { data: userSkills }] = await Promise.all([
+      const [{ data, error }, { data: userSkills }, { data: rolesData }] = await Promise.all([
         supabase.from('skills').select('*').order('name'),
         supabase.from('user_skills').select('skill_id').eq('user_id', session.user.id),
+        supabase.from('roles').select('title').order('title'),
       ]);
       if (!active) return;
       if (error) setErrorMessage(`Could not load skills: ${error.message}`);
       else setSkills(data || []);
+      setRoleTitles((rolesData || []).map((role) => role.title));
       setSelectedSkillIds((userSkills || []).map((item) => item.skill_id));
       setSkillsLoading(false);
     };
@@ -158,7 +161,8 @@ const OnboardingPage = () => {
               </div>
               <div className="form-group">
                 <label htmlFor="onboarding-desired-role">Desired role <i>*</i></label>
-                <input id="onboarding-desired-role" value={form.desiredRole} onChange={updateField('desiredRole')} placeholder="e.g. Product Designer" required />
+                <input id="onboarding-desired-role" list="pathfinder-role-options" value={form.desiredRole} onChange={updateField('desiredRole')} placeholder="e.g. AI Engineer, Data Engineer" required />
+                <datalist id="pathfinder-role-options">{roleTitles.map((title) => <option value={title} key={title} />)}</datalist>
               </div>
               <div className="form-group">
                 <label htmlFor="onboarding-experience">Experience <i>*</i></label>

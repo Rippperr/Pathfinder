@@ -1,143 +1,45 @@
-.career-paths-page { max-width: 1240px; margin: 0 auto; }.career-paths-page h1 { color: #f2f7ff; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.07em; }.career-paths-page h1::after { display: block; margin-top: 0.7rem; color: #9db4d2; content: 'Explore the skills and responsibilities that shape each next step.'; font-size: 0.95rem; font-weight: 500; letter-spacing: 0; }.role-card { border-radius: 1.1rem; background: linear-gradient(145deg, rgba(20, 48, 80, 0.98), rgba(8, 25, 44, 0.98)); }.role-card:hover { border-color: rgba(112, 223, 191, 0.45); box-shadow: 0 16px 42px rgba(0, 0, 0, 0.25); }.role-card h3 { color: #edf5ff; }.role-details { border-color: var(--border); }.role-details h4 { color: #70dfbf; }.responsibilities-text { color: #adc2da; }.skill-dot { background: #29435f; }.skill-dot.have { background: #70dfbf; }.skill-dot.need { background: #ffc86b; }.timeline-connector { background: linear-gradient(#2c4a69, #70dfbf); }
-
-.career-paths-page h1 {
-  text-align: center;
-  margin-bottom: 3rem;
-  font-size: 2rem;
-  font-weight: 600;
-  margin-top: 0;
-}
-
-.timeline-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.timeline-node {
-  width: 100%;
-  max-width: 400px;
-  position: relative;
-}
-
-.role-card {
-  cursor: pointer;
-  transition: box-shadow 0.2s ease-in-out;
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.role-card:hover {
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-}
-
-.role-card h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
-}
-
-.role-skills-preview {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 0.5rem;
-}
-
-.skill-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: var(--border-color);
-}
-
-.skill-dot.have {
-  background-color: var(--accent-green);
-}
-
-.skill-dot.need {
-  background-color: var(--accent-orange);
-}
-
-.role-details {
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
-  text-align: left;
-}
-
-.role-details h4 {
-  margin-top: 0;
-  margin-bottom: 0.75rem;
-  color: var(--text-secondary);
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.details-skills-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.skill-tag {
-  color: var(--sidebar-bg);
-  padding: 0.3rem 0.8rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.skill-tag.have {
-  background-color: var(--accent-green);
-}
-
-.skill-tag.need {
-  background-color: var(--accent-orange);
-}
-
-/* --- NEW STYLES --- */
-.responsibilities-title {
-  margin-top: 1.5rem; /* Add space above responsibilities */
-}
-
-.responsibilities-text {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  margin: 0;
-}
-/* --- END NEW STYLES --- */
-
-
-.timeline-connector {
-  width: 3px;
-  height: 40px;
-  background-color: var(--border-color);
-  border-radius: 2px;
-}
-
-@media (min-width: 992px) {
-  .timeline-container {
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-  }
-  .timeline-connector {
-    width: 60px;
-    height: 3px;
-    margin-top: 2rem;
-  }
-  .timeline-node {
-    max-width: 300px;
-  }
-}
-
-.career-paths-page.career-paths-page h1 { color: #f2f7ff; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.07em; }
-.career-paths-page.career-paths-page h1::after { display: block; margin-top: 0.7rem; color: #9db4d2; content: 'Explore the skills and responsibilities that shape each next step.'; font-size: 0.95rem; font-weight: 500; letter-spacing: 0; }
-.career-paths-page .role-card { border: 1px solid var(--border); border-radius: 1.1rem; background: linear-gradient(145deg, rgba(20, 48, 80, 0.98), rgba(8, 25, 44, 0.98)); }
-.career-paths-page .role-card h3 { color: #edf5ff; }
-.career-paths-page .role-details { border-color: var(--border); }.career-paths-page .responsibilities-title { color: #70dfbf; }.career-paths-page .responsibilities-text { color: #adc2da; }
+.career-paths-page { max-width: 1240px; margin: 0 auto; }
+.career-page-heading { max-width: 760px; margin-bottom: 1.5rem; }
+.career-page-eyebrow { margin: 0 0 0.55rem; color: #79e2c3; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; }
+.career-page-heading h1 { margin: 0; color: #f5f9ff; font-size: clamp(2.3rem, 5vw, 3.7rem); letter-spacing: -0.08em; line-height: 1; }
+.career-page-heading > p:last-child { max-width: 680px; margin: 0.8rem 0 0; color: #a9bfd8; font-size: 1rem; line-height: 1.65; }
+.career-market-note { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.9rem; margin: 0 0 1.5rem; padding: 1rem 1.1rem; border: 1px solid rgba(121, 226, 195, 0.18); border-radius: 0.9rem; background: linear-gradient(100deg, rgba(20, 58, 75, 0.55), rgba(12, 34, 56, 0.64)); }
+.market-note-mark { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: 0.65rem; color: #092135; background: #79e2c3; font-weight: 900; }
+.career-market-note p { margin: 0; color: #a9bfd8; font-size: 0.82rem; line-height: 1.55; }
+.career-market-note p b { color: #e2f5ef; }
+.market-note-sources { display: flex; gap: 0.8rem; white-space: nowrap; }
+.market-note-sources a { color: #8fe7cd; font-size: 0.75rem; font-weight: 750; }
+.role-explorer-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.role-search { display: flex; flex: 1; max-width: 520px; align-items: center; gap: 0.6rem; padding-left: 0.85rem; border: 1px solid rgba(171, 204, 243, 0.18); border-radius: 0.7rem; color: #82a0c6; background: rgba(11, 30, 52, 0.78); }
+.role-search > span { font-size: 1.4rem; }
+.role-search input { width: 100%; min-height: 2.8rem; padding: 0 0.8rem 0 0; border: 0; outline: 0; color: #edf5ff; background: transparent; font: inherit; font-size: 0.88rem; }
+.role-search input::placeholder { color: #7188a7; }
+.role-result-count { color: #8fa7c5; font-size: 0.8rem; font-weight: 700; }
+.role-family-filters { display: flex; gap: 0.5rem; margin: 0.85rem 0 1.2rem; padding-bottom: 0.25rem; overflow-x: auto; }
+.role-family-filter { flex: 0 0 auto; padding: 0.55rem 0.78rem; border: 1px solid rgba(171, 200, 239, 0.15); border-radius: 999px; color: #9db4d2; background: rgba(12, 31, 54, 0.45); cursor: pointer; font: inherit; font-size: 0.76rem; font-weight: 700; transition: all 0.16s ease; }
+.role-family-filter:hover { border-color: rgba(121, 226, 195, 0.38); color: #dffcf3; }
+.role-family-filter.is-active { border-color: rgba(121, 226, 195, 0.4); color: #9bf1d8; background: rgba(121, 226, 195, 0.1); }
+.role-catalog-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; }
+.career-paths-page .role-catalog-card { display: flex; min-width: 0; flex-direction: column; padding: 1.15rem; border: 1px solid rgba(171, 200, 239, 0.15); border-radius: 1rem; background: linear-gradient(145deg, rgba(18, 43, 72, 0.93), rgba(10, 28, 50, 0.96)); box-shadow: 0 14px 34px rgba(0, 0, 0, 0.13); transition: border-color 0.18s ease, transform 0.18s ease; }
+.career-paths-page .role-catalog-card:hover { border-color: rgba(121, 226, 195, 0.35); transform: translateY(-2px); }
+.role-catalog-card-top { display: flex; min-height: 2rem; align-items: center; gap: 0.55rem; }
+.role-catalog-mark { display: grid; flex: 0 0 2rem; height: 2rem; place-items: center; border: 1px solid rgba(124, 157, 255, 0.25); border-radius: 0.65rem; color: #adc3ff; background: rgba(124, 157, 255, 0.1); font-size: 0.65rem; font-weight: 850; }
+.role-family-label { color: #8ca6c6; font-size: 0.67rem; font-weight: 750; }
+.role-target-label { margin-left: auto; padding: 0.25rem 0.45rem; border-radius: 999px; color: #092a23; background: #79e2c3; font-size: 0.61rem; font-weight: 850; }
+.role-catalog-card h2 { margin: 0.95rem 0 0.45rem; color: #eef6ff; font-size: 1.08rem; letter-spacing: -0.04em; }
+.role-summary { min-height: 3.5rem; margin: 0; color: #9db4d2; font-size: 0.81rem; line-height: 1.55; }
+.role-skill-summary { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: 1rem; color: #829cbd; font-size: 0.68rem; }
+.role-skill-track { flex: 0 0 4rem; height: 0.3rem; overflow: hidden; border-radius: 999px; background: #233c5b; }
+.role-skill-track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #70dfbf, #7c9dff); }
+.role-skill-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.65rem; }
+.skill-chip, .skill-chip-more { padding: 0.28rem 0.45rem; border: 1px solid rgba(171, 200, 239, 0.12); border-radius: 0.45rem; color: #9db4d2; background: rgba(7, 20, 37, 0.4); font-size: 0.64rem; }
+.skill-chip.is-known { border-color: rgba(121, 226, 195, 0.2); color: #9debd5; background: rgba(121, 226, 195, 0.07); }
+.skill-chip-more { color: #8299b8; }
+.role-expanded-details { display: grid; gap: 0.8rem; margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid rgba(171, 200, 239, 0.12); }
+.role-expanded-details h3 { margin: 0 0 0.3rem; color: #8ee5cd; font-size: 0.73rem; font-weight: 800; letter-spacing: 0.03em; }
+.role-expanded-details p { margin: 0; color: #a9bfd8; font-size: 0.77rem; line-height: 1.55; }
+.role-details-toggle { display: flex; width: 100%; align-items: center; justify-content: space-between; margin-top: auto; padding: 0.85rem 0 0; border: 0; color: #8fe7cd; background: transparent; cursor: pointer; font: inherit; font-size: 0.77rem; font-weight: 800; text-align: left; }
+.role-details-toggle:hover { color: #c6ffed; }
+.role-empty-state { padding: 1.1rem; border: 1px dashed rgba(171, 200, 239, 0.2); border-radius: 0.8rem; color: #9db4d2; background: rgba(12, 31, 54, 0.4); font-size: 0.88rem; }
+@media (max-width: 1000px) { .role-catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.career-market-note { grid-template-columns: auto 1fr; }.market-note-sources { grid-column: 2; } }
+@media (max-width: 650px) { .career-market-note { grid-template-columns: auto 1fr; gap: 0.7rem; }.market-note-sources { flex-wrap: wrap; }.role-catalog-grid { grid-template-columns: 1fr; }.role-summary { min-height: 0; }.role-explorer-toolbar { align-items: flex-end; }.role-search { max-width: none; } }

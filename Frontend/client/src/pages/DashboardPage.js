@@ -64,7 +64,11 @@ const DashboardPage = () => {
   
   return (
     <div className="dashboard-page">
-      <h1>Your Career Dashboard</h1>
+      <header className="dashboard-heading">
+        <p className="dashboard-eyebrow">YOUR CAREER WORKSPACE</p>
+        <h1>Your next move, mapped.</h1>
+        <p className="dashboard-intro">{profile?.desired_role ? `Build toward ${profile.desired_role} with a clear view of your skills and practical next steps.` : 'Choose a role to see the skills you already bring and the next steps to strengthen your profile.'}</p>
+      </header>
 
       <CustomDropdown
         options={roles}
@@ -91,7 +95,7 @@ const DashboardPage = () => {
       />
       
       <div className="recommendations-section">
-        <h2>Recommended Learning Resources</h2>
+        <h2>Focused learning resources</h2>
         <div className="courses-grid">
           {selectedRole ? (
             recommendedCourses.length > 0 ? (

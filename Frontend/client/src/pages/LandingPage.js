@@ -26,7 +26,7 @@ const LandingPage = () => {
           <p className="public-kicker">A clearer way forward</p>
           <h1>Build a career that <em>moves</em> with you.</h1>
           <p className="landing-lede">
-            Pathfinder turns your experience and skills into a focused plan for the role you want next.
+            Pathfinder turns your experience and skills into a focused plan for the role you want next—from software and data to AI, cloud, and security.
           </p>
           <div className="landing-cta-row">
             <Link to="/signup" className="landing-primary-cta">Create your roadmap <span>→</span></Link>
@@ -41,12 +41,12 @@ const LandingPage = () => {
           <div className="orbit orbit-one"></div><div className="orbit orbit-two"></div>
           <article className="path-card path-card-main">
             <div className="path-card-top"><span>YOUR NEXT MOVE</span><b>72% ready</b></div>
-            <h2>Frontend Developer</h2>
+            <h2>AI Engineer</h2>
             <div className="path-progress"><span></span></div>
             <p>3 skills to strengthen</p>
           </article>
-          <article className="path-card path-card-float-one"><span className="path-check">✓</span><div><b>React</b><small>Skill demonstrated</small></div></article>
-          <article className="path-card path-card-float-two"><span className="path-step">02</span><div><b>Build a portfolio project</b><small>Your next action</small></div></article>
+          <article className="path-card path-card-float-one"><span className="path-check">✓</span><div><b>Python</b><small>Skill demonstrated</small></div></article>
+          <article className="path-card path-card-float-two"><span className="path-step">02</span><div><b>Ship a practical AI project</b><small>Your next action</small></div></article>
         </section>
       </main>
 

@@ -1,6 +1,10 @@
 .dashboard-page.dashboard-page { max-width: 1240px; margin: 0 auto; }
 .dashboard-page.dashboard-page h1 { margin-bottom: 0.4rem; color: #f2f7ff; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.07em; }
-.dashboard-page.dashboard-page h1::after { display: block; margin-top: 0.7rem; color: #9db4d2; content: 'Turn where you are today into a clear next career move.'; font-size: 0.95rem; font-weight: 500; letter-spacing: 0; }
+.dashboard-page.dashboard-page h1::after { content: none; }
+.dashboard-page .dashboard-heading { max-width: 740px; }
+.dashboard-page .dashboard-heading h1 { margin: 0; color: #f2f7ff; font-size: clamp(2.15rem, 4vw, 3rem); letter-spacing: -0.07em; }
+.dashboard-page .dashboard-eyebrow { margin: 0 0 0.45rem; color: #79e2c3; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.14em; }
+.dashboard-page .dashboard-intro { margin: 0.65rem 0 0; color: #9db4d2; font-size: 0.95rem; line-height: 1.6; }
 .dashboard-page .custom-dropdown-container { max-width: 440px; margin-top: 2.2rem; }
 .dashboard-page .card { border-radius: 1.1rem; }
 .recommendations-section { padding-top: 1rem; border-top: 1px solid var(--border); }
