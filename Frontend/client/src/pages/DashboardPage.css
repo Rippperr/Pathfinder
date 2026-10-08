@@ -9,6 +9,7 @@
 .dashboard-page .dashboard-learning-preference:hover { border-color: rgba(112,223,191,.5); background: rgba(112,223,191,.1); }
 .dashboard-page .dashboard-role-save { max-width: 440px; margin: .55rem 0 0; color: #8fe7cd; font-size: .76rem; line-height: 1.45; }
 .dashboard-page .dashboard-role-save.error { color: #ffc3a3; }
+.dashboard-page .dashboard-progress-notice { padding: .75rem .9rem; margin: 1rem 0; border: 1px solid rgba(255,200,107,.22); border-radius: .7rem; color: #e8cc93; background: rgba(255,200,107,.06); font-size: .77rem; line-height: 1.5; }
 .dashboard-page .custom-dropdown-container { max-width: 440px; margin-top: 2.2rem; }
 .dashboard-page .card { border-radius: 1.1rem; }
 .recommendations-section { padding-top: 1rem; border-top: 1px solid var(--border); }

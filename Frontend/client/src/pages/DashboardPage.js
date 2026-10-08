@@ -9,6 +9,12 @@ import CareerRoadmap from '../components/dashboard/CareerRoadmap';
 import { getCareerRoleCatalog, getCareerSkillCatalog, normalizeCareerTitle } from '../data/careerCatalog';
 import './DashboardPage.css';
 
+const progressKey = (roleTitle, skillName) => `${(roleTitle || '').trim().toLowerCase()}::${(skillName || '').trim().toLowerCase()}`;
+const mapProgressRows = (rows = []) => rows.reduce((result, row) => {
+  result[progressKey(row.role_title, row.skill_name)] = row;
+  return result;
+}, {});
+
 const DashboardPage = () => {
   const { session, profile } = useUser();
   const [roles, setRoles] = useState([]);
@@ -17,6 +23,9 @@ const DashboardPage = () => {
   const [selectedRoleId, setSelectedRoleId] = useState('');
   const [learningPreferences, setLearningPreferences] = useState({ learningStyle: 'balanced', weeklyHours: '4' });
   const [roleSaveState, setRoleSaveState] = useState('');
+  const [skillProgress, setSkillProgress] = useState({});
+  const [progressStorage, setProgressStorage] = useState('loading');
+  const [progressSavingKey, setProgressSavingKey] = useState('');
   const roleSelectionKey = session?.user?.id ? `pathfinder-dashboard-role:${session.user.id}` : null;
   const savedAccountRole = session?.user?.user_metadata?.last_selected_role || '';
 
@@ -31,6 +40,8 @@ const DashboardPage = () => {
   }, [session?.user?.id]);
 
   useEffect(() => {
+    if (!session?.user?.id) return;
+    let active = true;
     const getPageData = async () => {
       let rolesData = [];
       let skillsData = [];
@@ -49,13 +60,58 @@ const DashboardPage = () => {
       }
       const mergedSkills = getCareerSkillCatalog(skillsData || []);
       const mergedRoles = getCareerRoleCatalog(rolesData || [], mergedSkills);
-      setSkills(mergedSkills);
-      setRoles(mergedRoles);
-      setUserSkills(userSkillsData.map((skill) => skill.skill_id));
+      if (active) {
+        setSkills(mergedSkills);
+        setRoles(mergedRoles);
+        setUserSkills(userSkillsData.map((skill) => skill.skill_id));
+      }
 
     };
     getPageData();
-  }, [session]);
+    return () => { active = false; };
+  }, [session?.user?.id]);
+
+  useEffect(() => {
+    const userId = session?.user?.id;
+    if (!userId) return undefined;
+    let active = true;
+    const storageKey = `pathfinder-skill-progress:${userId}`;
+    let localRows = [];
+    try {
+      const savedRows = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      localRows = Array.isArray(savedRows) ? savedRows : [];
+    } catch { localRows = []; }
+    setSkillProgress(mapProgressRows(localRows));
+    setProgressStorage('loading');
+
+    supabase.from('user_skill_progress')
+      .select('role_title, skill_name, status, evidence, completed_at')
+      .eq('user_id', userId)
+      .then(async ({ data, error }) => {
+        if (!active) return;
+        if (error) {
+          setProgressStorage('local');
+          return;
+        }
+        const remoteRows = data || [];
+        const remoteMap = mapProgressRows(remoteRows);
+        const localMap = mapProgressRows(localRows);
+        const merged = { ...localMap, ...remoteMap };
+        setSkillProgress(merged);
+        setProgressStorage('synced');
+        try { localStorage.setItem(storageKey, JSON.stringify(Object.values(merged))); } catch { /* remote copy remains saved */ }
+        const missingRemoteRows = Object.entries(localMap)
+          .filter(([key]) => !remoteMap[key])
+          .map(([, row]) => ({ user_id: userId, ...row }));
+        if (missingRemoteRows.length) {
+          const { error: migrationError } = await supabase.from('user_skill_progress').upsert(missingRemoteRows, { onConflict: 'user_id,role_title,skill_name' });
+          if (active && migrationError) setProgressStorage('local');
+        }
+      })
+      .catch(() => { if (active) setProgressStorage('local'); });
+
+    return () => { active = false; };
+  }, [session?.user?.id]);
 
   useEffect(() => {
     if (selectedRoleId || !roles.length) return;
@@ -100,6 +156,35 @@ const DashboardPage = () => {
     const { error } = await supabase.auth.updateUser({ data: { last_selected_role: role.title } });
     setRoleSaveState(error ? 'error' : 'saved');
   };
+
+  const handleSkillProgressChange = async (skill, changes) => {
+    if (!selectedRole || !session?.user?.id) return;
+    const userId = session.user.id;
+    const storageKey = `pathfinder-skill-progress:${userId}`;
+    const key = progressKey(selectedRole.title, skill.name);
+    const row = {
+      role_title: selectedRole.title,
+      skill_name: skill.name,
+      status: changes.status,
+      evidence: changes.evidence || '',
+      completed_at: changes.status === 'completed' ? (changes.completed_at || new Date().toISOString()) : null,
+    };
+    const next = { ...skillProgress, [key]: row };
+    setSkillProgress(next);
+    setProgressSavingKey(key);
+    try { localStorage.setItem(storageKey, JSON.stringify(Object.values(next))); } catch { /* continue with account sync */ }
+
+    const { error } = await supabase.from('user_skill_progress').upsert(
+      { user_id: userId, ...row },
+      { onConflict: 'user_id,role_title,skill_name' }
+    );
+    setProgressSavingKey('');
+    if (error) {
+      setProgressStorage('local');
+      return;
+    }
+    setProgressStorage('synced');
+  };
   
   return (
     <div className="dashboard-page">
@@ -119,6 +204,8 @@ const DashboardPage = () => {
       />
       {roleSaveState && <p className={`dashboard-role-save ${roleSaveState}`} role="status">{roleSaveState === 'saving' ? 'Saving your target role to your account…' : roleSaveState === 'saved' ? 'Your target role is saved to your account.' : 'Could not sync this role to your account. It is saved in this browser.'}</p>}
 
+      {selectedRole && progressStorage === 'local' && <p className="dashboard-progress-notice" role="status">Your roadmap progress is saved in this browser. Apply the Supabase skill progress migration to sync it with your account across devices.</p>}
+
       <Card>
         <SkillGapDisplay 
           userSkills={userSkills}
@@ -128,7 +215,7 @@ const DashboardPage = () => {
         />
       </Card>
 
-      <CareerRoadmap role={selectedRole} skills={skills} userSkillIds={userSkills} />
+      <CareerRoadmap role={selectedRole} skills={skills} userSkillIds={userSkills} progressRecords={skillProgress} onProgressChange={handleSkillProgressChange} progressSavingKey={progressSavingKey} progressLoading={progressStorage === 'loading'} />
       
       <div className="recommendations-section">
         <h2>Focused learning resources</h2>
