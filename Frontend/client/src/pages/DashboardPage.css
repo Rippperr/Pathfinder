@@ -5,6 +5,8 @@
 .dashboard-page .dashboard-heading h1 { margin: 0; color: #f2f7ff; font-size: clamp(2.15rem, 4vw, 3rem); letter-spacing: -0.07em; }
 .dashboard-page .dashboard-eyebrow { margin: 0 0 0.45rem; color: #79e2c3; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.14em; }
 .dashboard-page .dashboard-intro { margin: 0.65rem 0 0; color: #9db4d2; font-size: 0.95rem; line-height: 1.6; }
+.dashboard-page .dashboard-learning-preference { display: inline-flex; align-items: center; gap: .45rem; margin-top: .9rem; padding: .5rem .7rem; border: 1px solid rgba(112,223,191,.2); border-radius: .6rem; color: #9fead4; background: rgba(112,223,191,.06); font-size: .74rem; font-weight: 750; text-decoration: none; }
+.dashboard-page .dashboard-learning-preference:hover { border-color: rgba(112,223,191,.5); background: rgba(112,223,191,.1); }
 .dashboard-page .custom-dropdown-container { max-width: 440px; margin-top: 2.2rem; }
 .dashboard-page .card { border-radius: 1.1rem; }
 .recommendations-section { padding-top: 1rem; border-top: 1px solid var(--border); }

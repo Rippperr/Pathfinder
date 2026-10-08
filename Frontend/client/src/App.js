@@ -15,6 +15,7 @@ import UpdatePasswordPage from './pages/UpdatePasswordPage'; // 1. Import the ne
 import OnboardingPage from './pages/OnboardingPage';
 import LandingPage from './pages/LandingPage';
 import ConfirmEmailPage from './pages/ConfirmEmailPage';
+import SettingsPage from './pages/SettingsPage';
 import './App.css';
 
 const AppContent = () => {
@@ -50,6 +51,7 @@ const AppContent = () => {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/edit-profile" element={<EditProfilePage />} />
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="/paths" element={<CareerPathsPage />} />
             </Route>
           </Routes>

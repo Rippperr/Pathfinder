@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../contexts/UserContext';
 import Card from '../components/common/Card';
@@ -14,6 +15,17 @@ const DashboardPage = () => {
   const [skills, setSkills] = useState([]);
   const [userSkills, setUserSkills] = useState([]);
   const [selectedRoleId, setSelectedRoleId] = useState('');
+  const [learningPreferences, setLearningPreferences] = useState({ learningStyle: 'balanced', weeklyHours: '4' });
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    try {
+      const saved = JSON.parse(localStorage.getItem(`pathfinder-settings:${session.user.id}`) || '{}');
+      setLearningPreferences({ learningStyle: 'balanced', weeklyHours: '4', ...saved });
+    } catch {
+      setLearningPreferences({ learningStyle: 'balanced', weeklyHours: '4' });
+    }
+  }, [session?.user?.id]);
 
   useEffect(() => {
     const getPageData = async () => {
@@ -62,10 +74,17 @@ const DashboardPage = () => {
       .map((id) => skills.find((skill) => skill.id === id)?.name)
       .filter(Boolean);
     const resources = selectedRole.learningResources || [];
-    if (!missingSkillNames.length) return resources;
-    const filtered = resources.filter((resource) => resource.skillNames.some((name) => missingSkillNames.includes(name)));
-    return filtered.length ? filtered : resources;
-  }, [selectedRole, userSkills, requiredSkillsForRole, skills]);
+    const relevant = !missingSkillNames.length ? resources : resources.filter((resource) => resource.skillNames.some((name) => missingSkillNames.includes(name)));
+    const base = relevant.length ? relevant : resources;
+    const preferredFormat = (resource) => {
+      const text = `${resource.provider} ${resource.format} ${resource.title}`.toLowerCase();
+      if (learningPreferences.learningStyle === 'video') return /youtube|video|playlist|course/.test(text);
+      if (learningPreferences.learningStyle === 'reading') return /docs|documentation|guide|reading|official/.test(text);
+      if (learningPreferences.learningStyle === 'hands-on') return /practice|lab|interactive|hands-on|kaggle|portswigger|project/.test(text);
+      return false;
+    };
+    return [...base].sort((a, b) => Number(preferredFormat(b)) - Number(preferredFormat(a)));
+  }, [selectedRole, userSkills, requiredSkillsForRole, skills, learningPreferences]);
 
   const handleRoleChange = (role) => {
     setSelectedRoleId(role.id);
@@ -76,7 +95,8 @@ const DashboardPage = () => {
       <header className="dashboard-heading">
         <p className="dashboard-eyebrow">YOUR CAREER WORKSPACE</p>
         <h1>Your next move, mapped.</h1>
-        <p className="dashboard-intro">{profile?.desired_role ? `Build toward ${profile.desired_role} with a clear view of your skills and practical next steps.` : 'Choose a role to see the skills you already bring and the next steps to strengthen your profile.'}</p>
+      <p className="dashboard-intro">{profile?.desired_role ? `Build toward ${profile.desired_role} with a clear view of your skills and practical next steps.` : 'Choose a role to see the skills you already bring and the next steps to strengthen your profile.'}</p>
+        <Link className="dashboard-learning-preference" to="/settings">{learningPreferences.weeklyHours} hrs/week learning target <span>·</span> {learningPreferences.learningStyle === 'balanced' ? 'Balanced resources' : `${learningPreferences.learningStyle} first`} <span aria-hidden="true">↗</span></Link>
       </header>
 
       <CustomDropdown

@@ -38,6 +38,12 @@ const Sidebar = ({ isOpen, onLinkClick }) => {
               <span>Career Paths</span>
             </NavLink>
           </li>
+          <li>
+            <NavLink to="/settings" onClick={onLinkClick}>
+              <span className="sidebar-icon">⚙</span>
+              <span>Settings</span>
+            </NavLink>
+          </li>
         </ul>
       </nav>
       <div className="sidebar-footer">
