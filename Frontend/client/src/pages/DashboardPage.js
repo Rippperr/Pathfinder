@@ -8,7 +8,7 @@ import CareerRoadmap from '../components/dashboard/CareerRoadmap';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
-  const { session } = useUser();
+  const { session, profile } = useUser();
   const [roles, setRoles] = useState([]);
   const [skills, setSkills] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -18,7 +18,14 @@ const DashboardPage = () => {
   useEffect(() => {
     const getPageData = async () => {
       const { data: rolesData } = await supabase.from('roles').select('*, role_skills(skill_id)');
-      if (rolesData) setRoles(rolesData);
+      if (rolesData) {
+        setRoles(rolesData);
+        const targetRole = profile?.desired_role?.trim().toLowerCase();
+        if (targetRole) {
+          const matchedRole = rolesData.find((role) => role.title.trim().toLowerCase() === targetRole);
+          if (matchedRole) setSelectedRoleId(matchedRole.id);
+        }
+      }
       
       const { data: skillsData } = await supabase.from('skills').select('*');
       if (skillsData) setSkills(skillsData);
@@ -32,7 +39,7 @@ const DashboardPage = () => {
       }
     };
     getPageData();
-  }, [session]);
+  }, [session, profile?.desired_role]);
 
   const selectedRole = roles.find(role => role.id === selectedRoleId);
 

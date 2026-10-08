@@ -121,3 +121,10 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+.skill-badge { border: 1px solid var(--border); background: rgba(153, 181, 218, 0.12); color: #d6e5f8; }
+.skill-badge.matched { border-color: rgba(112, 223, 191, 0.3); background: rgba(112, 223, 191, 0.18); color: #a8f2dc; }
+.skill-badge.missing { border-color: rgba(255, 200, 107, 0.3); background: rgba(255, 200, 107, 0.14); color: #ffdaa0; }
+.dashboard-page .placeholder-text { padding: 0.9rem 1rem; border: 1px dashed rgba(171, 200, 239, 0.2); border-radius: 0.75rem; color: #9db4d2; background: rgba(12, 31, 54, 0.55); }
+.dashboard-page .recommendations-section { margin-top: 2.4rem; }
+.dashboard-page .course-image { background: linear-gradient(135deg, #1c4772, #18344f); }

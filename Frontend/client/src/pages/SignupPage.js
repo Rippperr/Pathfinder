@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // 1. Import Link
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import Button from '../components/common/Button';
 import PublicAuthLayout from '../components/layout/PublicAuthLayout';
@@ -8,21 +8,29 @@ import './LoginPage.css'; // Reusing the login page styles
 const SignupPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
 
   const handleSignup = async (event) => {
     event.preventDefault();
+    setSubmitting(true);
+    setErrorMessage('');
     try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/onboarding`,
+          emailRedirectTo: `${window.location.origin}/confirm-email`,
         },
       });
       if (error) throw error;
-      alert('Signup successful! Please check your email to verify.');
+      window.sessionStorage.setItem('pathfinder-confirmation-email', email.trim());
+      navigate('/confirm-email', { state: { email: email.trim() } });
     } catch (error) {
-      alert(error.error_description || error.message);
+      setErrorMessage(error.error_description || error.message || 'We could not create your account. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -52,7 +60,8 @@ const SignupPage = () => {
                 required
               />
             </div>
-            <Button type="submit">Sign Up</Button>
+            {errorMessage && <p className="auth-form-error" role="alert">{errorMessage}</p>}
+            <Button type="submit" disabled={submitting}>{submitting ? 'Creating your account…' : 'Create my account'}</Button>
           </form>
 
           {/* 2. Add the login link at the bottom */}

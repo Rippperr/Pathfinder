@@ -14,6 +14,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage'; // 1. Import the new page
 import OnboardingPage from './pages/OnboardingPage';
 import LandingPage from './pages/LandingPage';
+import ConfirmEmailPage from './pages/ConfirmEmailPage';
 import './App.css';
 
 const AppContent = () => {
@@ -21,7 +22,7 @@ const AppContent = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isOnboarding = location.pathname === '/onboarding';
-  const isPublicPage = ['/', '/login', '/signup', '/forgot-password', '/update-password'].includes(location.pathname);
+  const isPublicPage = ['/', '/login', '/signup', '/confirm-email', '/forgot-password', '/update-password'].includes(location.pathname);
 
   if (isPublicPage) {
     return (
@@ -29,6 +30,7 @@ const AppContent = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/confirm-email" element={<ConfirmEmailPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/update-password" element={<UpdatePasswordPage />} />
       </Routes>

@@ -14,6 +14,7 @@ const EditProfilePage = () => {
   
   const [name, setName] = useState('');
   const [title, setTitle] = useState('');
+  const [desiredRole, setDesiredRole] = useState('');
   const [department, setDepartment] = useState('');
   const [experience, setExperience] = useState('');
   const [location, setLocation] = useState('');
@@ -26,6 +27,7 @@ const EditProfilePage = () => {
     if (contextProfile) {
       setName(contextProfile.name || '');
       setTitle(contextProfile.title || '');
+      setDesiredRole(contextProfile.desired_role || '');
       setDepartment(contextProfile.department || '');
       setExperience(contextProfile.experience || '');
       setLocation(contextProfile.location || '');
@@ -83,7 +85,7 @@ const EditProfilePage = () => {
 
     const { error: profileError } = await supabase
       .from('users')
-      .update({ name, title, department, experience, location, career_goals: careerGoals, avatar_url: avatarUrl })
+      .update({ name, title, desired_role: desiredRole, department, experience, location, career_goals: careerGoals, avatar_url: avatarUrl })
       .eq('id', session.user.id);
 
     const { error: deleteError } = await supabase
@@ -133,8 +135,12 @@ const EditProfilePage = () => {
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Title</label>
+              <label>Current role</label>
               <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Desired role</label>
+              <input type="text" value={desiredRole} onChange={(e) => setDesiredRole(e.target.value)} placeholder="The role you are working toward" />
             </div>
             <div className="form-group">
               <label>Department</label>

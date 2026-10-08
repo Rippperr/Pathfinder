@@ -51,10 +51,8 @@ test('renders the onboarding form for a new user', () => {
   expect(screen.getByRole('button', { name: /continue to my dashboard/i })).toBeInTheDocument();
 });
 
-test('sends confirmation emails back to onboarding', async () => {
+test('sends confirmation emails back to the branded confirmation page', async () => {
   supabase.auth.signUp.mockResolvedValue({ error: null });
-  jest.spyOn(window, 'alert').mockImplementation(() => {});
-
   render(
     <MemoryRouter>
       <SignupPage />
@@ -70,10 +68,9 @@ test('sends confirmation emails back to onboarding', async () => {
       email: 'new.user@example.com',
       password: 'password123',
       options: {
-        emailRedirectTo: `${window.location.origin}/onboarding`,
+          emailRedirectTo: `${window.location.origin}/confirm-email`,
       },
     });
   });
 
-  window.alert.mockRestore();
 });

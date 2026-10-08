@@ -135,6 +135,7 @@ const ProfilePage = () => {
           <div className="profile-divider"></div>
           <div className="profile-details-grid">
             <span>Department:</span><span>{profile.department || 'N/A'}</span>
+            <span>Desired role:</span><span>{profile.desired_role || 'Not set'}</span>
             <span>Experience:</span><span>{profile.experience || 'N/A'}</span>
             <span>Location:</span><span>{profile.location || 'N/A'}</span>
           </div>

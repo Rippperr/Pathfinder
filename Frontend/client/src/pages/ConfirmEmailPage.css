@@ -1,0 +1,14 @@
+.confirmation-content { display: grid; gap: 0.95rem; }
+.confirmation-icon { display: grid; width: 3.3rem; height: 3.3rem; place-items: center; border: 1px solid rgba(40, 127, 114, 0.2); border-radius: 1rem; color: #167d70; background: #e9fbf5; font-size: 1.45rem; }
+.confirmation-content h3 { margin: 0; color: #0d1e35; font-size: 1.3rem; letter-spacing: -0.035em; }
+.confirmation-content > p { margin: 0; color: #60708a; line-height: 1.55; }
+.confirmation-content > p strong { color: #203a5d; overflow-wrap: anywhere; }
+.confirmation-next-step { display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem; border: 1px solid #e2eaf3; border-radius: 0.8rem; background: #f8fbff; }
+.confirmation-check { display: grid; flex: 0 0 1.8rem; height: 1.8rem; place-items: center; border-radius: 50%; color: #0b4a42; background: #c9f5e7; font-size: 0.8rem; font-weight: 800; }
+.confirmation-next-step b, .confirmation-next-step small { display: block; }
+.confirmation-next-step b { color: #203550; font-size: 0.9rem; }
+.confirmation-next-step small { margin-top: 0.15rem; color: #71819a; font-size: 0.8rem; }
+.confirmation-content .confirmation-notice { color: #167d70; font-size: 0.9rem; }
+.confirmation-content .btn { width: 100%; }
+.confirmation-help { text-align: center; font-size: 0.84rem; }
+.auth-form-error { margin: 0 0 0.75rem; color: #b42336; font-size: 0.9rem; line-height: 1.45; }
