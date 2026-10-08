@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { getSkillLearningGuide } from '../../data/skillLearningGuides';
 import './CareerRoadmap.css';
 
 const CareerRoadmap = ({ role, skills, userSkillIds }) => {
@@ -8,11 +9,10 @@ const CareerRoadmap = ({ role, skills, userSkillIds }) => {
       .map(({ skill_id }) => skills.find((skill) => skill.id === skill_id))
       .filter(Boolean);
     const missingSkills = requiredSkills.filter((skill) => !userSkillIds.includes(skill.id));
-    const resources = role.learningResources || [];
     const actions = missingSkills.map((skill, index) => ({
       skill,
       step: index + 1,
-      resource: resources.find((item) => item.skillNames.some((name) => name.toLowerCase() === skill.name.toLowerCase())) || resources[0],
+      guide: getSkillLearningGuide(skill.name),
     }));
     return {
       actions,
@@ -37,13 +37,14 @@ const CareerRoadmap = ({ role, skills, userSkillIds }) => {
       <p className="roadmap-summary">{completedSkills} of {requiredSkills.length} mapped skills are already in your profile. Work through the gaps in an order that suits your goal.</p>
       {actions.length ? (
         <ol className="roadmap-actions">
-          {actions.map(({ skill, resource, step }) => (
+          {actions.map(({ skill, guide, step }) => (
             <li key={skill.id} className="roadmap-action">
               <span className="roadmap-week">Step {step}</span>
               <div className="roadmap-action-content">
                 <h3>Build skill: {skill.name}</h3>
-                <p>Learn the fundamentals, then create a small project that shows how you use {skill.name} for this role.</p>
-                {resource && <a className="roadmap-resource-link" href={resource.url} target="_blank" rel="noreferrer">{resource.provider}: {resource.title} <span aria-hidden="true">↗</span></a>}
+                <p><strong>Why it matters:</strong> {guide.benefit}</p>
+                <p className="roadmap-practice-tip">After learning the basics, apply {skill.name} in a small project related to {role.title}.</p>
+                <a className="roadmap-resource-link" href={guide.url} target="_blank" rel="noreferrer">Learn {skill.name} <span aria-hidden="true">↗</span></a>
               </div>
             </li>
           ))}

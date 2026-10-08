@@ -11,6 +11,10 @@
 .roadmap-action-content { min-width: 0; }
 .roadmap-resource-link { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.55rem; color: #8fe7cd; font-size: 0.78rem; font-weight: 750; }
 .roadmap-resource-link:hover { color: #c6ffed; }
+.roadmap-action p strong { color: #e3f0ff; }
+.roadmap-action .roadmap-practice-tip { margin-top: .55rem; color: #8ea9c8; font-size: .82rem; }
+.roadmap-resource-link { padding: .5rem .7rem; border: 1px solid rgba(112,223,191,.22); border-radius: .6rem; background: rgba(112,223,191,.06); text-decoration: none; }
+.roadmap-resource-link:hover { border-color: rgba(112,223,191,.5); background: rgba(112,223,191,.11); }
 
 .roadmap-heading {
   display: flex;
