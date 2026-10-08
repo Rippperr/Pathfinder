@@ -1,3 +1,14 @@
+.dashboard-page.dashboard-page { max-width: 1240px; margin: 0 auto; }
+.dashboard-page.dashboard-page h1 { margin-bottom: 0.4rem; color: #f2f7ff; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.07em; }
+.dashboard-page.dashboard-page h1::after { display: block; margin-top: 0.7rem; color: #9db4d2; content: 'Turn where you are today into a clear next career move.'; font-size: 0.95rem; font-weight: 500; letter-spacing: 0; }
+.dashboard-page .custom-dropdown-container { max-width: 440px; margin-top: 2.2rem; }
+.dashboard-page .card { border-radius: 1.1rem; }
+.recommendations-section { padding-top: 1rem; border-top: 1px solid var(--border); }
+.recommendations-section h2 { color: #ecf5ff; font-size: 1.3rem; letter-spacing: -0.04em; }
+.courses-grid .card { overflow: hidden; transition: transform 0.2s ease, border-color 0.2s ease; }.courses-grid .card:hover { border-color: rgba(112, 223, 191, 0.45); transform: translateY(-4px); }
+.course-image { border-radius: 0.75rem; filter: saturate(0.85) contrast(1.05); }
+.courses-grid h3 { color: #eff6ff; }.courses-grid p { color: #9db4d2; }
+
 .dashboard-page h1 {
   font-size: 1.8rem; /* Slightly smaller */
   font-weight: 700;

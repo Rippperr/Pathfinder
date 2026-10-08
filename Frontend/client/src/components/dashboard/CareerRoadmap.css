@@ -1,3 +1,5 @@
+.career-roadmap.career-roadmap { border-color: rgba(112, 223, 191, 0.22); border-radius: 1.1rem; background: linear-gradient(125deg, rgba(15, 46, 74, 0.95), rgba(10, 29, 50, 0.95)); box-shadow: var(--shadow-md); }.roadmap-heading h2, .roadmap-action h3, .roadmap-complete h3 { color: #eff6ff; }.roadmap-eyebrow { color: #78e1c1; }.roadmap-progress-value { color: #7eb1ff; }.roadmap-progress-track { background: #1f3a59; }.roadmap-progress-track span { background: linear-gradient(90deg, #70dfbf, #7c9dff); }.roadmap-summary, .roadmap-empty > p, .roadmap-action p, .roadmap-complete p { color: #aac0d9; }.roadmap-action { border: 1px solid rgba(153, 187, 228, 0.13); background: rgba(6, 20, 37, 0.34); }.roadmap-week { color: #071323; background: #70dfbf; }.roadmap-complete { border: 1px solid rgba(112, 223, 191, 0.25); background: rgba(112, 223, 191, 0.1); }
+
 .career-roadmap {
   margin: 1.5rem 0;
   padding: 1.5rem;

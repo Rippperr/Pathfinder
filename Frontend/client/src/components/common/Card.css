@@ -1,13 +1,2 @@
-.card {
-  background-color: var(--foreground); /* White card */
-  border-radius: var(--border-radius); /* Use global radius */
-  padding: 1.5rem;
-  border: 1px solid var(--border); /* Light border */
-  box-shadow: var(--shadow-md); /* Add shadow */
-}
-
-@media (min-width: 768px) {
-    .card {
-        padding: 2rem; /* Larger padding on desktop */
-    }
-}
+.card { padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--border-radius); background: linear-gradient(145deg, rgba(18, 43, 72, 0.94), rgba(10, 28, 50, 0.94)); box-shadow: var(--shadow-md); }
+@media (min-width: 768px) { .card { padding: 1.8rem; } }

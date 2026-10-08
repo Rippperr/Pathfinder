@@ -1,3 +1,5 @@
+.career-paths-page { max-width: 1240px; margin: 0 auto; }.career-paths-page h1 { color: #f2f7ff; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.07em; }.career-paths-page h1::after { display: block; margin-top: 0.7rem; color: #9db4d2; content: 'Explore the skills and responsibilities that shape each next step.'; font-size: 0.95rem; font-weight: 500; letter-spacing: 0; }.role-card { border-radius: 1.1rem; background: linear-gradient(145deg, rgba(20, 48, 80, 0.98), rgba(8, 25, 44, 0.98)); }.role-card:hover { border-color: rgba(112, 223, 191, 0.45); box-shadow: 0 16px 42px rgba(0, 0, 0, 0.25); }.role-card h3 { color: #edf5ff; }.role-details { border-color: var(--border); }.role-details h4 { color: #70dfbf; }.responsibilities-text { color: #adc2da; }.skill-dot { background: #29435f; }.skill-dot.have { background: #70dfbf; }.skill-dot.need { background: #ffc86b; }.timeline-connector { background: linear-gradient(#2c4a69, #70dfbf); }
+
 .career-paths-page h1 {
   text-align: center;
   margin-bottom: 3rem;
@@ -133,3 +135,9 @@
     max-width: 300px;
   }
 }
+
+.career-paths-page.career-paths-page h1 { color: #f2f7ff; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.07em; }
+.career-paths-page.career-paths-page h1::after { display: block; margin-top: 0.7rem; color: #9db4d2; content: 'Explore the skills and responsibilities that shape each next step.'; font-size: 0.95rem; font-weight: 500; letter-spacing: 0; }
+.career-paths-page .role-card { border: 1px solid var(--border); border-radius: 1.1rem; background: linear-gradient(145deg, rgba(20, 48, 80, 0.98), rgba(8, 25, 44, 0.98)); }
+.career-paths-page .role-card h3 { color: #edf5ff; }
+.career-paths-page .role-details { border-color: var(--border); }.career-paths-page .responsibilities-title { color: #70dfbf; }.career-paths-page .responsibilities-text { color: #adc2da; }

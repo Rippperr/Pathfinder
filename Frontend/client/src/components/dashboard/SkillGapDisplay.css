@@ -1,3 +1,5 @@
+.skill-gap-analysis h2 { color: #eff6ff; }.skill-column h3 { color: #82a2c9; }.skill-badge { border: 1px solid rgba(154, 184, 219, 0.16); color: #dceafa; background: #193553; }.skill-badge.matched { color: #071323; background: #70dfbf; }.skill-badge.missing { color: #382600; background: #ffc86b; }.placeholder-text { color: #9db4d2; }
+
 .skill-gap-analysis h2 {
   font-size: 1.25rem;
   font-weight: 600;

@@ -1,3 +1,5 @@
+.edit-profile-page { max-width: 900px; }.edit-profile-page h1 { color: #f2f7ff; font-size: 2.3rem; letter-spacing: -0.06em; }.edit-profile-page .card { border-radius: 1.1rem; }.edit-profile-page h3 { border-color: var(--border); color: #e9f3ff; }.edit-profile-page .form-group label { color: #a9bfd8; }.edit-profile-page .form-group input, .edit-profile-page .form-group textarea, .achievement-edit-item input { border-color: var(--border); color: #e9f3ff; background: #091a2f; }.edit-avatar { border: 3px solid rgba(112, 223, 191, 0.5); }.upload-label { color: #071323; background: var(--accent); }.remove-button { color: #ff9da6; }
+
 .edit-profile-page {
   max-width: 800px;
   margin: 0 auto;
@@ -112,4 +114,12 @@
   .form-group.full-width {
     grid-column: 1 / -1;
   }
+}
+
+.edit-profile-page .form-group input,
+.edit-profile-page .form-group textarea,
+.edit-profile-page .achievement-edit-item input {
+  border-color: var(--border);
+  color: #e9f3ff;
+  background: #091a2f;
 }

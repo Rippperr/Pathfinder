@@ -1,91 +1,32 @@
 :root {
-  /* --- Modern Professional Theme --- */
-  --background: #f7f9fc;        /* Very light grey-blue background */
-  --foreground: #ffffff;        /* White for cards, sidebar, header */
-  --border: #e2e8f0;           /* Light grey border */
-  --text-primary: #1e293b;       /* Charcoal/Slate 900 */
-  --text-secondary: #64748b;     /* Grey/Slate 500 */
-  --accent: #4f46e5;            /* Royal Blue/Indigo 600 */
-  --accent-hover: #4338ca;      /* Darker Indigo */
-  --accent-text: #ffffff;       /* White text on accent */
-  --success: #10b981;          /* Green */
-  --warning: #f59e0b;          /* Orange */
-  --danger: #ef4444;           /* Red */
-
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --border-radius: 8px;
+  --background: #071323;
+  --foreground: #0d1e35;
+  --foreground-raised: #102742;
+  --border: rgba(171, 204, 243, 0.16);
+  --text-primary: #edf5ff;
+  --text-secondary: #9db4d2;
+  --accent: #70dfbf;
+  --accent-hover: #99efda;
+  --accent-text: #071323;
+  --success: #70dfbf;
+  --warning: #ffc86b;
+  --danger: #ff8e99;
+  --border-color: var(--border);
+  --accent-green: var(--success);
+  --accent-orange: var(--warning);
+  --sidebar-bg: var(--foreground);
+  --accent-blue: #7c9dff;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.16);
+  --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 24px 55px rgba(0, 0, 0, 0.34);
+  --border-radius: 14px;
 }
 
-body {
-  margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--background);
-  color: var(--text-primary);
-  overflow-x: hidden;
-}
-
-/* Base link styling */
-a {
-  color: var(--accent);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-a:hover {
-  color: var(--accent-hover);
-  text-decoration: underline;
-}
-
-/* Layout styles */
-.app-layout {
-  display: flex;
-  height: 100vh;
-}
-
-.main-content-wrapper {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-width: 0;
-  transition: transform 0.3s ease-in-out;
-  background-color: var(--background);
-}
-
-.page-content {
-  flex-grow: 1;
-  padding: 1.5rem;
-  overflow-y: auto;
-}
-.page-content::-webkit-scrollbar { display: none; }
-.page-content { -ms-overflow-style: none; scrollbar-width: none; }
-
-.hamburger-menu { /* Keep this for mobile toggle logic */
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-size: 1.5rem;
-  cursor: pointer;
-  display: block;
-}
-
-.sidebar-is-open .main-content-wrapper {
-  transform: translateX(250px);
-}
-
-@media (min-width: 768px) {
-  .page-content {
-    padding: 2rem 3rem;
-  }
-  .hamburger-menu {
-    display: none;
-  }
-  .sidebar-is-open .main-content-wrapper {
-    transform: none;
-  }
-}
+body { margin: 0; background: var(--background); color: var(--text-primary); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+a { color: var(--accent); text-decoration: none; } a:hover { color: var(--accent-hover); text-decoration: none; }
+.app-layout { display: flex; min-height: 100vh; }
+.main-content-wrapper { display: flex; flex: 1; min-width: 0; flex-direction: column; overflow: hidden; background: radial-gradient(circle at 88% 0%, rgba(45, 105, 213, 0.16), transparent 28rem), var(--background); }
+.page-content { flex: 1; padding: 1.5rem; overflow-y: auto; }.page-content::-webkit-scrollbar { width: 7px; }.page-content::-webkit-scrollbar-thumb { border-radius: 999px; background: #29435f; }
+.hamburger-menu { display: block; border: 0; color: var(--text-primary); background: none; cursor: pointer; }
+.sidebar-is-open .main-content-wrapper { transform: translateX(250px); }
+@media (min-width: 768px) { .page-content { padding: 2.25rem 3rem 3.5rem; }.hamburger-menu { display: none; }.sidebar-is-open .main-content-wrapper { transform: none; } }
