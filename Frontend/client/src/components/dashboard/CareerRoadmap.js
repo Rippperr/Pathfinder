@@ -70,7 +70,7 @@ const CareerRoadmap = ({ role, skills, userSkillIds, progressRecords = {}, onPro
   };
 
   return (
-    <section className="career-roadmap" aria-labelledby="roadmap-title">
+    <section id="career-roadmap" className="career-roadmap" aria-labelledby="roadmap-title">
       <div className="roadmap-heading">
         <div><p className="roadmap-eyebrow">YOUR PERSONALIZED PLAN</p><h2 id="roadmap-title">Your {role.title} roadmap</h2></div>
         <strong className="roadmap-progress-value">{completionPercent}% complete</strong>

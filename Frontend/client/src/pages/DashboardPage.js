@@ -21,6 +21,9 @@ const DashboardPage = () => {
   const [roles, setRoles] = useState([]);
   const [skills, setSkills] = useState([]);
   const [userSkills, setUserSkills] = useState([]);
+  const [achievements, setAchievements] = useState([]);
+  const [achievementSkillSelections, setAchievementSkillSelections] = useState({});
+  const [achievementMessages, setAchievementMessages] = useState({});
   const [selectedRoleId, setSelectedRoleId] = useState('');
   const [learningPreferences, setLearningPreferences] = useState({ learningStyle: 'balanced', weeklyHours: '4' });
   const [roleSaveState, setRoleSaveState] = useState('');
@@ -47,15 +50,18 @@ const DashboardPage = () => {
       let rolesData = [];
       let skillsData = [];
       let userSkillsData = [];
+      let achievementsData = [];
       try {
         const results = await Promise.all([
           supabase.from('roles').select('*, role_skills(skill_id)'),
           supabase.from('skills').select('*').order('name'),
           supabase.from('user_skills').select('skill_id').eq('user_id', session.user.id),
+          supabase.from('achievements').select('*').eq('user_id', session.user.id),
         ]);
         rolesData = results[0].data || [];
         skillsData = results[1].data || [];
         userSkillsData = results[2].data || [];
+        achievementsData = results[3].data || [];
       } catch (error) {
         console.warn('Using Pathfinder’s built-in career catalog because Supabase data is unavailable.', error);
       }
@@ -65,6 +71,7 @@ const DashboardPage = () => {
         setSkills(mergedSkills);
         setRoles(mergedRoles);
         setUserSkills(userSkillsData.map((skill) => skill.skill_id));
+        setAchievements(achievementsData);
       }
 
     };
@@ -126,6 +133,21 @@ const DashboardPage = () => {
 
   const selectedRole = roles.find(role => role.id === selectedRoleId);
 
+  const roadmapSkills = useMemo(() => {
+    if (!selectedRole) return [];
+    const orderedSkills = selectedRole.roadmapPhases?.flatMap((phase) => phase.skills) || [];
+    const fallbackSkills = selectedRole.role_skills.map(({ skill_id }) => skills.find((skill) => skill.id === skill_id)).filter(Boolean);
+    const uniqueSkills = new Map();
+    [...orderedSkills, ...fallbackSkills].forEach((skill) => { if (skill?.id) uniqueSkills.set(skill.id, skill); });
+    return [...uniqueSkills.values()];
+  }, [selectedRole, skills]);
+
+  const roadmapSummary = useMemo(() => {
+    const completed = roadmapSkills.filter((skill) => skillProgress[progressKey(selectedRole?.title, skill.name)]?.status === 'completed').length;
+    const nextSkill = roadmapSkills.find((skill) => skillProgress[progressKey(selectedRole?.title, skill.name)]?.status !== 'completed');
+    return { completed, total: roadmapSkills.length, percent: roadmapSkills.length ? Math.round((completed / roadmapSkills.length) * 100) : 0, nextSkill };
+  }, [roadmapSkills, skillProgress, selectedRole]);
+
   const requiredSkillsForRole = useMemo(() => {
     if (!selectedRole) return [];
     return selectedRole.role_skills.map(rs => rs.skill_id);
@@ -186,6 +208,25 @@ const DashboardPage = () => {
     }
     setProgressStorage('synced');
   };
+
+  const attachAchievementToRoadmap = async (achievement) => {
+    if (!selectedRole || !achievement?.title) return;
+    const skillId = achievementSkillSelections[achievement.id] || roadmapSummary.nextSkill?.id;
+    const skill = roadmapSkills.find((item) => item.id === skillId);
+    if (!skill) return;
+    const key = progressKey(selectedRole.title, skill.name);
+    const previous = skillProgress[key] || {};
+    const evidenceLine = `${achievement.title}${achievement.subtitle ? ` — ${achievement.subtitle}` : ''}`;
+    const evidence = previous.evidence?.includes(achievement.title)
+      ? previous.evidence
+      : [previous.evidence, evidenceLine].filter(Boolean).join('\n');
+    await handleSkillProgressChange(skill, {
+      status: previous.status === 'completed' ? 'completed' : 'in_progress',
+      evidence,
+      completed_at: previous.completed_at || null,
+    });
+    setAchievementMessages((current) => ({ ...current, [achievement.id]: `Linked to ${skill.name} in your roadmap.` }));
+  };
   
   return (
     <div className="dashboard-page">
@@ -208,6 +249,45 @@ const DashboardPage = () => {
       {roleSaveState && <p className={`dashboard-role-save ${roleSaveState}`} role="status">{roleSaveState === 'saving' ? 'Saving your target role to your account…' : roleSaveState === 'saved' ? 'Your target role is saved to your account.' : 'Could not sync this role to your account. It is saved in this browser.'}</p>}
 
       {selectedRole && progressStorage === 'local' && <p className="dashboard-progress-notice" role="status">Your roadmap progress is saved in this browser. Apply the Supabase skill progress migration to sync it with your account across devices.</p>}
+
+      <section className="career-focus-grid" aria-label="Career goals and achievements">
+        <Card className="career-focus-card">
+          <div className="career-focus-heading"><div><p className="career-focus-kicker">YOUR DIRECTION</p><h2>Career goal</h2></div><Link to="/edit-profile">Edit goal <span aria-hidden="true">↗</span></Link></div>
+          <p className="career-goal-copy">{profile?.career_goals || 'Add a clear milestone to give your learning plan a purpose.'}</p>
+          {selectedRole ? <>
+            <div className="career-goal-progress-label"><span>{roadmapSummary.completed} of {roadmapSummary.total} roadmap skills completed</span><strong>{roadmapSummary.percent}%</strong></div>
+            <div className="career-goal-progress" role="progressbar" aria-label="Career goal roadmap progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow={roadmapSummary.percent}><span style={{ width: `${roadmapSummary.percent}%` }} /></div>
+            <div className="career-goal-next"><span aria-hidden="true">→</span><p>{roadmapSummary.nextSkill ? <>Your next milestone: <b>{roadmapSummary.nextSkill.name}</b></> : 'You have completed every skill in this roadmap.'}</p></div>
+            {roadmapSummary.nextSkill && <a className="career-focus-primary" href="#career-roadmap">Continue with {roadmapSummary.nextSkill.name} <span aria-hidden="true">↓</span></a>}
+          </> : <div className="career-goal-empty"><p>Select your target role to turn this goal into a trackable roadmap.</p><Link to="/career-paths">Explore career paths <span aria-hidden="true">→</span></Link></div>}
+        </Card>
+
+        <Card className="career-focus-card achievements-roadmap-card">
+          <div className="career-focus-heading"><div><p className="career-focus-kicker">PROOF OF YOUR PROGRESS</p><h2>Recent achievements</h2></div><Link to="/edit-profile">Manage <span aria-hidden="true">↗</span></Link></div>
+          {achievements.length ? <div className="roadmap-achievements-list">
+            {achievements.slice(0, 3).map((achievement) => {
+              const chosenSkillId = achievementSkillSelections[achievement.id] || roadmapSummary.nextSkill?.id || '';
+              const chosenSkill = roadmapSkills.find((skill) => skill.id === chosenSkillId);
+              const existingEvidence = chosenSkill && skillProgress[progressKey(selectedRole?.title, chosenSkill.name)]?.evidence;
+              const alreadyLinked = Boolean(existingEvidence?.includes(achievement.title));
+              return <div className="roadmap-achievement-item" key={achievement.id}>
+                <span className="roadmap-achievement-mark" aria-hidden="true">✦</span>
+                <div className="roadmap-achievement-content"><h3>{achievement.title}</h3><p>{achievement.subtitle || 'A milestone worth carrying into your next role.'}</p>
+                  {selectedRole ? <div className="roadmap-achievement-action">
+                    <label htmlFor={`achievement-skill-${achievement.id}`}>Connect to a roadmap skill</label>
+                    <select id={`achievement-skill-${achievement.id}`} value={chosenSkillId} onChange={(event) => setAchievementSkillSelections((current) => ({ ...current, [achievement.id]: event.target.value }))}>
+                      {roadmapSkills.map((skill) => <option key={skill.id} value={skill.id}>{skill.name}</option>)}
+                    </select>
+                    <button type="button" onClick={() => attachAchievementToRoadmap(achievement)} disabled={!chosenSkill || alreadyLinked}>{alreadyLinked ? 'Added to roadmap' : 'Use as evidence'} <span aria-hidden="true">↗</span></button>
+                    {achievementMessages[achievement.id] && <small role="status">{achievementMessages[achievement.id]}</small>}
+                  </div> : <Link to="/career-paths" className="roadmap-achievement-browse">Choose a role to connect this achievement →</Link>}
+                </div>
+              </div>;
+            })}
+          </div> : <div className="roadmap-achievements-empty"><p>Add a project, certificate, or measurable win, then connect it to a skill as roadmap evidence.</p><Link to="/edit-profile">Add your first achievement <span aria-hidden="true">→</span></Link></div>}
+          {achievements.length > 3 && <Link to="/profile" className="roadmap-achievements-more">View all {achievements.length} achievements →</Link>}
+        </Card>
+      </section>
 
       <Card>
         <SkillGapDisplay 

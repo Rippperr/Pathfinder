@@ -143,3 +143,34 @@
 .learning-resource-card > p { margin: 0; color: #9db4d2; font-size: 0.82rem; line-height: 1.55; }
 .learning-resource-card > a { margin-top: auto; padding-top: 0.5rem; color: #8fe7cd; font-size: 0.8rem; font-weight: 800; }
 .learning-resource-card > a:hover { color: #c6ffed; }
+
+.career-focus-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 1rem; margin: 1.4rem 0; }
+.dashboard-page .career-focus-card { min-width: 0; padding: clamp(1.1rem, 2.2vw, 1.5rem); border: 1px solid rgba(171,200,239,.14); background: linear-gradient(145deg, rgba(18,43,72,.9), rgba(10,28,50,.94)); }
+.career-focus-heading { display: flex; align-items: center; justify-content: space-between; gap: .8rem; margin-bottom: 1rem; }
+.career-focus-heading h2 { margin: 0; color: #eef6ff; font-size: 1.12rem; letter-spacing: -.04em; }
+.career-focus-kicker { margin: 0 0 .35rem; color: #7e9abd; font-size: .62rem; font-weight: 800; letter-spacing: .13em; }
+.career-focus-heading > a, .roadmap-achievements-more { flex: 0 0 auto; color: #8fe7cd; font-size: .77rem; font-weight: 750; text-decoration: none; }
+.career-focus-heading > a:hover, .roadmap-achievements-more:hover { color: #c4ffed; }
+.career-goal-copy { margin: 0 0 1.1rem; color: #b4c7de; font-size: .86rem; line-height: 1.65; white-space: pre-wrap; }
+.career-goal-progress-label { display: flex; align-items: center; justify-content: space-between; gap: .5rem; color: #9db4d2; font-size: .73rem; }
+.career-goal-progress-label strong { color: #a5efd9; font-size: .8rem; }
+.career-goal-progress { height: .45rem; overflow: hidden; margin: .55rem 0 .9rem; border-radius: 999px; background: rgba(154,181,216,.15); }
+.career-goal-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#70dfbf,#7c9dff); transition: width .25s ease; }
+.career-goal-next { display: flex; align-items: center; gap: .6rem; margin: 0 0 .95rem; padding: .7rem .8rem; border: 1px solid rgba(112,223,191,.15); border-radius: .7rem; background: rgba(112,223,191,.05); }
+.career-goal-next > span { display: grid; flex: 0 0 1.55rem; height: 1.55rem; place-items: center; border-radius: .48rem; color: #092135; background: #79e2c3; font-weight: 900; }
+.career-goal-next p { margin: 0; color: #9db4d2; font-size: .77rem; line-height: 1.45; }.career-goal-next b { color: #e5f5f1; }
+.career-focus-primary { display: inline-flex; align-items: center; gap: .45rem; color: #9fead4; font-size: .78rem; font-weight: 800; text-decoration: none; }.career-focus-primary:hover { color: #d1fff2; }
+.career-goal-empty p, .roadmap-achievements-empty p { margin: 0 0 .65rem; color: #9db4d2; font-size: .82rem; line-height: 1.55; }
+.career-goal-empty a, .roadmap-achievements-empty a, .roadmap-achievement-browse { color: #9fead4; font-size: .77rem; font-weight: 800; text-decoration: none; }
+.roadmap-achievements-list { display: grid; gap: .95rem; }
+.roadmap-achievement-item { display: grid; grid-template-columns: 1.8rem minmax(0,1fr); gap: .7rem; padding: .8rem; border: 1px solid rgba(171,200,239,.1); border-radius: .8rem; background: rgba(6,19,36,.3); }
+.roadmap-achievement-mark { display: grid; width: 1.7rem; height: 1.7rem; place-items: center; border-radius: .55rem; color: #a5efd9; background: rgba(112,223,191,.1); }
+.roadmap-achievement-content { min-width: 0; }.roadmap-achievement-content h3 { margin: 0; color: #e5effc; font-size: .85rem; }.roadmap-achievement-content > p { margin: .25rem 0 .65rem; color: #96acc9; font-size: .75rem; line-height: 1.45; }
+.roadmap-achievement-action { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: .45rem .55rem; }
+.roadmap-achievement-action label { grid-column: 1/-1; color: #829cbd; font-size: .67rem; font-weight: 700; }
+.roadmap-achievement-action select { min-width: 0; min-height: 2.25rem; padding: .45rem .6rem; border: 1px solid rgba(171,200,239,.16); border-radius: .55rem; color: #dceaff; background: #091a2f; font: inherit; font-size: .73rem; }
+.roadmap-achievement-action button { min-height: 2.25rem; padding: .45rem .65rem; border: 1px solid rgba(112,223,191,.25); border-radius: .55rem; color: #a5efd9; background: rgba(112,223,191,.07); font: inherit; font-size: .7rem; font-weight: 800; cursor: pointer; }
+.roadmap-achievement-action button:hover:not(:disabled) { border-color: rgba(112,223,191,.55); background: rgba(112,223,191,.14); }.roadmap-achievement-action button:disabled { opacity: .65; cursor: default; }
+.roadmap-achievement-action small { grid-column: 1/-1; color: #8fe7cd; font-size: .68rem; }.roadmap-achievements-empty { padding: .8rem; border: 1px dashed rgba(171,200,239,.18); border-radius: .75rem; background: rgba(6,19,36,.25); }.roadmap-achievements-more { display: inline-block; margin-top: .9rem; }
+@media (max-width: 800px) { .career-focus-grid { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .roadmap-achievement-action { grid-template-columns: 1fr; }.roadmap-achievement-action label, .roadmap-achievement-action small { grid-column: 1; } }
