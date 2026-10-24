@@ -19,35 +19,45 @@ const CareerRoadmap = ({ role, skills, userSkillIds, progressRecords = {}, onPro
     const requiredSkills = (role.role_skills || [])
       .map(({ skill_id }) => skills.find((skill) => skill.id === skill_id))
       .filter(Boolean);
-    const steps = requiredSkills.map((skill, index) => {
-      const record = progressRecords[progressKey(role.title, skill.name)] || {};
-      return {
-        skill,
-        step: index + 1,
-        status: record.status || 'not_started',
-        evidence: record.evidence || '',
-        completedAt: record.completed_at || null,
-        hasProfileSkill: userSkillIds.includes(skill.id),
-        guide: getSkillLearningGuide(skill.name),
-      };
-    });
+    const phaseDefinitions = role.roadmapPhases?.length
+      ? role.roadmapPhases
+      : [{ title: 'Role foundations', outcome: 'Build these core skills and apply them in a practical project.', skills: requiredSkills }];
+    let stepNumber = 0;
+    const phases = phaseDefinitions.map((phase, phaseIndex) => ({
+      ...phase,
+      number: phaseIndex + 1,
+      steps: phase.skills.map((skill) => {
+        stepNumber += 1;
+        const record = progressRecords[progressKey(role.title, skill.name)] || {};
+        return {
+          skill,
+          step: stepNumber,
+          status: record.status || 'not_started',
+          evidence: record.evidence || '',
+          completedAt: record.completed_at || null,
+          hasProfileSkill: userSkillIds.includes(skill.id),
+          guide: getSkillLearningGuide(skill.name),
+        };
+      }),
+    })).filter((phase) => phase.steps.length);
+    const steps = phases.flatMap((phase) => phase.steps);
     const counts = steps.reduce((result, item) => {
       result[item.status] = (result[item.status] || 0) + 1;
       return result;
     }, {});
-    return { steps, counts, completed: counts.completed || 0, inProgress: counts.in_progress || 0, notStarted: counts.not_started || 0 };
+    return { steps, phases, counts, completed: counts.completed || 0, inProgress: counts.in_progress || 0, notStarted: counts.not_started || 0 };
   }, [role, skills, userSkillIds, progressRecords]);
 
   if (!roadmap) {
     return <section className="career-roadmap roadmap-empty" aria-labelledby="roadmap-title"><h2 id="roadmap-title">Your career roadmap</h2><p>Select a target role to see your skill-by-skill plan and track your progress.</p></section>;
   }
 
-  const { steps, completed, inProgress, notStarted } = roadmap;
+  const { steps, phases, completed, inProgress, notStarted } = roadmap;
   const completionPercent = steps.length ? Math.round((completed / steps.length) * 100) : 0;
   const visibleSteps = steps.filter((item) => filter === 'all' || item.status === filter);
 
   const changeStatus = (step, status) => {
-    const previous = progressRecords[step.skill.name.trim().toLowerCase()] || {};
+    const previous = progressRecords[progressKey(role.title, step.skill.name)] || {};
     const completedAt = status === 'completed'
       ? (previous.status === 'completed' && previous.completed_at ? previous.completed_at : new Date().toISOString())
       : null;
@@ -79,8 +89,14 @@ const CareerRoadmap = ({ role, skills, userSkillIds, progressRecords = {}, onPro
           {progressFilters.map((item) => <button key={item.id} type="button" className={filter === item.id ? 'active' : ''} aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{item.label}<span>{item.id === 'all' ? steps.length : (roadmap.counts[item.id] || 0)}</span></button>)}
         </div>
 
-        {visibleSteps.length ? <ol className="roadmap-actions">
-          {visibleSteps.map((item) => {
+        {visibleSteps.length ? <div className="roadmap-phases">
+          {phases.map((phase) => {
+            const phaseSteps = phase.steps.filter((step) => visibleSteps.includes(step));
+            if (!phaseSteps.length) return null;
+            return <section className="roadmap-phase" key={phase.title} aria-label={`Phase ${phase.number}: ${phase.title}`}>
+              <header className="roadmap-phase-heading"><span>Phase {phase.number}</span><div><h3>{phase.title}</h3><p>{phase.outcome}</p></div><small>{phase.steps.filter((step) => step.status === 'completed').length}/{phase.steps.length} skills</small></header>
+              <ol className="roadmap-actions">
+          {phaseSteps.map((item) => {
             const saving = progressSavingKey === progressKey(role.title, item.skill.name);
             const evidenceValue = evidenceDrafts[item.skill.id] ?? item.evidence;
             return <li key={item.skill.id} className={`roadmap-action status-${item.status}`}>
@@ -102,7 +118,10 @@ const CareerRoadmap = ({ role, skills, userSkillIds, progressRecords = {}, onPro
               </div>
             </li>;
           })}
-        </ol> : <div className="roadmap-filter-empty"><span aria-hidden="true">✦</span><p>No skills in this view yet. Choose another filter or update a roadmap step.</p></div>}
+              </ol>
+            </section>;
+          })}
+        </div> : <div className="roadmap-filter-empty"><span aria-hidden="true">✦</span><p>No skills in this view yet. Choose another filter or update a roadmap step.</p></div>}
       </> : <div className="roadmap-complete"><h3>Skill map being prepared</h3><p>This role does not have a detailed skill map yet. Explore the role guide and learning resources while we add one.</p></div>}
     </section>
   );

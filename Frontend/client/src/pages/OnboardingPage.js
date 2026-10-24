@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../contexts/UserContext';
-import { careerRoleGuides } from '../data/careerCatalog';
+import { careerRoleGuides, getCareerSkillCatalog } from '../data/careerCatalog';
 import './OnboardingPage.css';
 
 const categoryForSkill = (skill) => {
@@ -20,10 +20,12 @@ const categoryForSkill = (skill) => {
 
 const OnboardingPage = () => {
   const { session, profile, refetchProfile } = useUser();
+  const userId = session?.user?.id;
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [skillsLoading, setSkillsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [skillsNotice, setSkillsNotice] = useState('');
   const [skills, setSkills] = useState([]);
   const [roleTitles, setRoleTitles] = useState([]);
   const [selectedSkillIds, setSelectedSkillIds] = useState([]);
@@ -39,7 +41,7 @@ const OnboardingPage = () => {
   });
 
   useEffect(() => {
-    if (!profile) return;
+    if (![profile?.id, profile?.name, profile?.title, profile?.desired_role, profile?.department, profile?.experience, profile?.location, profile?.career_goals].some(Boolean)) return;
     setForm({
       name: profile.name || '',
       currentRole: profile.title || '',
@@ -49,26 +51,41 @@ const OnboardingPage = () => {
       location: profile.location || '',
       careerGoals: profile.career_goals || '',
     });
-  }, [profile]);
+  }, [profile?.id, profile?.name, profile?.title, profile?.desired_role, profile?.department, profile?.experience, profile?.location, profile?.career_goals]);
 
   useEffect(() => {
     let active = true;
     const loadSkills = async () => {
-      const [{ data, error }, { data: userSkills }, { data: rolesData }] = await Promise.all([
-        supabase.from('skills').select('*').order('name'),
-        supabase.from('user_skills').select('skill_id').eq('user_id', session.user.id),
-        supabase.from('roles').select('title').order('title'),
-      ]);
-      if (!active) return;
-      if (error) setErrorMessage(`Could not load skills: ${error.message}`);
-      else setSkills(data || []);
-      setRoleTitles((rolesData || []).map((role) => role.title));
-      setSelectedSkillIds((userSkills || []).map((item) => item.skill_id));
-      setSkillsLoading(false);
+      try {
+        const [{ data, error }, { data: userSkills }, { data: rolesData }] = await Promise.all([
+          supabase.from('skills').select('*').order('name'),
+          supabase.from('user_skills').select('skill_id').eq('user_id', userId),
+          supabase.from('roles').select('title').order('title'),
+        ]);
+        if (!active) return;
+        const fullCatalog = getCareerSkillCatalog(data || []);
+        const missingFromDatabase = fullCatalog.filter((skill) => skill.catalogOnly).length;
+        if (error) {
+          setSkillsNotice(`Saved skills are temporarily unavailable: ${error.message}. Unregistered catalog skills are disabled until the skill list can sync.`);
+          setSkills(getCareerSkillCatalog());
+        } else {
+          setSkills(fullCatalog);
+          if (missingFromDatabase) setSkillsNotice(`${missingFromDatabase} curated skills are not in this Supabase skill library yet. Apply the included career-curriculum migration before selecting them for your profile.`);
+        }
+        setRoleTitles((rolesData || []).map((role) => role.title));
+        setSelectedSkillIds((userSkills || []).map((item) => item.skill_id));
+      } catch (error) {
+        if (!active) return;
+        setSkills(getCareerSkillCatalog());
+        setRoleTitles(careerRoleGuides.map((role) => role.title));
+        setSkillsNotice(`Could not reach your saved skill list: ${error.message || 'connection unavailable'}. Unregistered catalog skills are disabled until the skill list can sync.`);
+      } finally {
+        if (active) setSkillsLoading(false);
+      }
     };
-    if (session?.user?.id) loadSkills();
+    if (userId) loadSkills();
     return () => { active = false; };
-  }, [session]);
+  }, [userId]);
 
   const groupedSkills = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -197,6 +214,7 @@ const OnboardingPage = () => {
               <label className="skills-search" htmlFor="skills-search"><span aria-hidden="true">⌕</span><input id="skills-search" type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search skills, tools, or strengths" /></label>
               <span className="skills-selected-count">{selectedSkillIds.length} selected</span>
             </div>
+            {skillsNotice && <p className="skills-load-notice" role="status">{skillsNotice}</p>}
             {skillsLoading ? <p className="skills-loading">Loading your skill library…</p> : Object.keys(groupedSkills).length ? (
               <div className="skills-category-list">
                 {Object.entries(groupedSkills).map(([category, categorySkills]) => (
@@ -206,8 +224,8 @@ const OnboardingPage = () => {
                       {categorySkills.map((skill) => {
                         const selected = selectedSkillIds.includes(skill.id);
                         return (
-                          <label key={skill.id} className={`onboarding-skill-option${selected ? ' is-selected' : ''}`}>
-                            <input type="checkbox" checked={selected} onChange={() => toggleSkill(skill.id)} />
+                          <label key={skill.id} className={`onboarding-skill-option${selected ? ' is-selected' : ''}${skill.catalogOnly ? ' is-unavailable' : ''}`}>
+                            <input type="checkbox" checked={selected} onChange={() => toggleSkill(skill.id)} disabled={skill.catalogOnly} />
                             <span className="skill-option-check" aria-hidden="true">{selected ? '✓' : '+'}</span>
                             <span>{skill.name}</span>
                           </label>

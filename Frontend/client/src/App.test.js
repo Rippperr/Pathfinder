@@ -10,6 +10,7 @@ jest.mock('./supabaseClient', () => ({
     from: jest.fn(() => ({
       select: jest.fn(() => ({
         order: jest.fn().mockResolvedValue({ data: [], error: null }),
+        eq: jest.fn().mockResolvedValue({ data: [], error: null }),
       })),
     })),
   },
@@ -46,9 +47,9 @@ test('renders the onboarding form for a new user', () => {
     </MemoryRouter>
   );
 
-  expect(screen.getByRole('heading', { name: /build your career starting point/i })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: /let’s map your next move/i })).toBeInTheDocument();
   expect(screen.getByLabelText(/experience/i)).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /continue to my dashboard/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /build my roadmap/i })).toBeInTheDocument();
 });
 
 test('sends confirmation emails back to the branded confirmation page', async () => {
@@ -61,7 +62,7 @@ test('sends confirmation emails back to the branded confirmation page', async ()
 
   fireEvent.change(screen.getByLabelText(/^email$/i), { target: { value: 'new.user@example.com' } });
   fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: 'password123' } });
-  fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
+  fireEvent.click(screen.getByRole('button', { name: /create my account/i }));
 
   await waitFor(() => {
     expect(supabase.auth.signUp).toHaveBeenCalledWith({

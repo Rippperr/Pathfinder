@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../contexts/UserContext';
 import Card from '../components/common/Card';
@@ -6,6 +7,7 @@ import { getCareerRoleCatalog, getCareerSkillCatalog, normalizeCareerTitle } fro
 import './CareerPathsPage.css';
 
 const CareerPathsPage = () => {
+  const navigate = useNavigate();
   const { session, profile } = useUser();
   const [roles, setRoles] = useState([]);
   const [skills, setSkills] = useState([]);
@@ -14,6 +16,7 @@ const CareerPathsPage = () => {
   const [query, setQuery] = useState('');
   const [familyFilter, setFamilyFilter] = useState('All fields');
   const [loading, setLoading] = useState(true);
+  const [choosingRoleId, setChoosingRoleId] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -54,6 +57,23 @@ const CareerPathsPage = () => {
 
   const toggleRoleDetails = (roleId) => setExpandedRoleId((current) => current === roleId ? null : roleId);
 
+  const chooseRole = async (role) => {
+    if (!session?.user?.id || choosingRoleId) return;
+    setChoosingRoleId(role.id);
+    try {
+      localStorage.setItem(`pathfinder-dashboard-role:${session.user.id}`, role.title);
+    } catch { /* the account copy is still updated below */ }
+    let syncFailed = false;
+    try {
+      const { error } = await supabase.auth.updateUser({ data: { last_selected_role: role.title } });
+      syncFailed = Boolean(error);
+    } catch {
+      syncFailed = true;
+    }
+    setChoosingRoleId('');
+    navigate('/dashboard', { state: { roleSyncFailed: syncFailed } });
+  };
+
   return (
     <main className="career-paths-page">
       <header className="career-page-heading">
@@ -65,6 +85,10 @@ const CareerPathsPage = () => {
         <span className="market-note-mark" aria-hidden="true">↗</span>
         <p><b>Market-informed, not a promise of openings.</b> Global workforce research points to growth across AI, data, software, and security. Hiring needs vary by location and employer.</p>
         <div className="market-note-sources"><a href="https://www.weforum.org/publications/the-future-of-jobs-report-2025/in-full/2-jobs-outlook/" target="_blank" rel="noreferrer">WEF outlook ↗</a><a href="https://www.linkedin.com/pulse/jobs-rise-2025-edition-get-hired-by-linkedin-news-lt2sf" target="_blank" rel="noreferrer">LinkedIn roles ↗</a></div>
+      </aside>
+      <aside className="curriculum-method-note">
+        <span aria-hidden="true">◎</span>
+        <p><b>Roadmaps are sequenced learning plans, not exhaustive hiring checklists.</b> Core skills move from foundations toward applied and production work. Specializations vary by employer—compare them with current job descriptions. Reference frameworks: <a href="https://developers.google.com/machine-learning/crash-course" target="_blank" rel="noreferrer">Google ML Crash Course</a>, <a href="https://www.nist.gov/itl/applied-cybersecurity/nice/nice-framework-resource-center" target="_blank" rel="noreferrer">NIST NICE</a>, <a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html" target="_blank" rel="noreferrer">AWS Well-Architected</a>, <a href="https://owasp.org/www-project-application-security-verification-standard/" target="_blank" rel="noreferrer">OWASP ASVS</a>, and <a href="https://www.w3.org/TR/wcag/" target="_blank" rel="noreferrer">W3C WCAG</a>.</p>
       </aside>
 
       <section className="role-explorer" aria-label="Explore career roles">
@@ -95,13 +119,17 @@ const CareerPathsPage = () => {
                       <div><h3>Role overview</h3><p>{role.overview}</p></div>
                       <div><h3>What you’ll work on</h3><ul>{role.responsibilities.map((item) => <li key={item}>{item}</li>)}</ul></div>
                       <div><h3>Skills for this role</h3><div className="role-skill-chips role-skill-chips-expanded">{requiredSkills.map((skill) => <span className={userSkills.includes(skill.id) ? 'skill-chip is-known' : 'skill-chip'} key={skill.id}>{skill.name}</span>)}</div></div>
+                      {role.optionalSkills?.length > 0 && <div><h3>Common specializations</h3><p>These vary by employer and product. Use job descriptions to decide which are relevant.</p><div className="role-skill-chips role-skill-chips-expanded">{role.optionalSkills.map((skill) => <span className="skill-chip" key={skill.id}>{skill.name}</span>)}</div></div>}
                       <div><h3>How to get started</h3><p>{role.entryPath}</p></div>
                       <div><h3>Project to show your skills</h3><p>{role.portfolioProject}</p></div>
                       {role.nextRoles?.length > 0 && <div><h3>Possible next steps</h3><p>{role.nextRoles.join(' · ')}</p></div>}
                       <div><h3>Recommended learning</h3><div className="role-learning-links">{role.learningResources.map((resource) => <a href={resource.url} key={`${resource.provider}-${resource.title}`} target="_blank" rel="noreferrer"><span><b>{resource.title}</b><small>{resource.provider} · {resource.format}</small></span><span aria-hidden="true">↗</span></a>)}</div></div>
                     </div>
                   )}
-                  <button type="button" className="role-details-toggle" onClick={() => toggleRoleDetails(role.id)} aria-expanded={isExpanded}>{isExpanded ? 'Close role guide' : 'View complete role guide'} <span aria-hidden="true">{isExpanded ? '↑' : '→'}</span></button>
+                  <div className="role-card-actions">
+                    <button type="button" className="role-details-toggle" onClick={() => toggleRoleDetails(role.id)} aria-expanded={isExpanded}>{isExpanded ? 'Close role guide' : 'View complete role guide'} <span aria-hidden="true">{isExpanded ? '↑' : '→'}</span></button>
+                    <button type="button" className="role-roadmap-button" onClick={() => chooseRole(role)} disabled={Boolean(choosingRoleId)}>{choosingRoleId === role.id ? 'Saving…' : isTargetRole ? 'Continue roadmap' : 'Build this roadmap'} <span aria-hidden="true">→</span></button>
+                  </div>
                 </Card>
               );
             })}

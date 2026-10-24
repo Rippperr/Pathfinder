@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../contexts/UserContext';
 import Card from '../components/common/Card';
@@ -16,6 +16,7 @@ const mapProgressRows = (rows = []) => rows.reduce((result, row) => {
 }, {});
 
 const DashboardPage = () => {
+  const location = useLocation();
   const { session, profile } = useUser();
   const [roles, setRoles] = useState([]);
   const [skills, setSkills] = useState([]);
@@ -194,6 +195,8 @@ const DashboardPage = () => {
       <p className="dashboard-intro">{profile?.desired_role ? `Build toward ${profile.desired_role} with a clear view of your skills and practical next steps.` : 'Choose a role to see the skills you already bring and the next steps to strengthen your profile.'}</p>
         <Link className="dashboard-learning-preference" to="/settings">{learningPreferences.weeklyHours} hrs/week learning target <span>·</span> {learningPreferences.learningStyle === 'balanced' ? 'Balanced resources' : `${learningPreferences.learningStyle} first`} <span aria-hidden="true">↗</span></Link>
       </header>
+
+      {location.state?.roleSyncFailed && <p className="dashboard-progress-notice" role="status">Your new roadmap is saved in this browser, but account sync was unavailable. It may not follow you to other devices yet.</p>}
 
       <CustomDropdown
         options={roles}

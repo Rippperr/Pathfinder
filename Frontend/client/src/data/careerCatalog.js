@@ -1,3 +1,5 @@
+import { getCurriculumSkillNames, getOptionalCurriculumSkillNames, roleCurricula } from './roleCurricula';
+
 const sharedLearning = {
   software: [
     { title: 'MDN Learn web development', provider: 'MDN', format: 'Guided lessons', url: 'https://developer.mozilla.org/en-US/docs/Learn_web_development', skillNames: ['HTML', 'CSS', 'JavaScript', 'Web Accessibility'], description: 'Structured lessons and practice for the foundations of the web.' },
@@ -62,24 +64,50 @@ export const getCareerRoleCatalog = (databaseRoles = [], databaseSkills = []) =>
   };
   const catalogRoles = roleCatalog.map((guide) => {
     const databaseRole = databaseRoles.find((role) => normalize(role.title) === normalize(guide.title));
-    const skillObjects = guide.skills.map(resolveSkill);
+    const coreSkillNames = getCurriculumSkillNames(guide.title);
+    const requiredNames = coreSkillNames.length ? coreSkillNames : guide.skills;
+    const optionalNames = [...new Set([
+      ...getOptionalCurriculumSkillNames(guide.title),
+      ...guide.skills.filter((name) => !requiredNames.some((required) => normalize(required) === normalize(name))),
+    ])];
+    const skillObjects = requiredNames.map(resolveSkill);
+    const seenPhaseSkills = new Set();
+    const roadmapPhases = (roleCurricula[guide.title]?.phases || [{ title: 'Role foundations', outcome: guide.entryPath, skills: requiredNames }])
+      .map((phase) => ({
+        ...phase,
+        skills: phase.skills
+          .filter((name) => requiredNames.some((required) => normalize(required) === normalize(name)))
+          .filter((name) => {
+            const key = normalize(name);
+            if (seenPhaseSkills.has(key)) return false;
+            seenPhaseSkills.add(key);
+            return true;
+          })
+          .map(resolveSkill),
+      }))
+      .filter((phase) => phase.skills.length);
+    const phasedSkills = new Set(roadmapPhases.flatMap((phase) => phase.skills.map((skill) => normalize(skill.name))));
+    const remainingSkills = skillObjects.filter((skill) => !phasedSkills.has(normalize(skill.name)));
+    if (remainingSkills.length) roadmapPhases.push({ title: 'Additional role foundations', outcome: 'Round out the remaining core capabilities with a small applied project.', skills: remainingSkills });
     return {
       ...guide,
       ...databaseRole,
       id: databaseRole?.id || `catalog-role-${slug(guide.title)}`,
       title: guide.title,
       role_skills: skillObjects.map((skill) => ({ skill_id: skill.id })),
-      skillNames: guide.skills,
+      skillNames: requiredNames,
       resolvedSkills: skillObjects,
+      roadmapPhases,
+      optionalSkills: optionalNames.map(resolveSkill),
       learningResources: [
         ...(sharedLearning[guide.learning] || []),
         {
           title: `YouTube ${guide.title} course videos`,
           provider: 'YouTube',
           format: 'Video courses and playlists',
-          url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${guide.title} full course tutorial ${guide.skills.slice(0, 4).join(' ')}`)}`,
-          skillNames: guide.skills,
-          description: `Find current full courses and playlists covering ${guide.skills.slice(0, 3).join(', ')}.`,
+          url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${guide.title} full course tutorial ${requiredNames.slice(0, 4).join(' ')}`)}`,
+          skillNames: requiredNames,
+          description: `Find current full courses and playlists covering ${requiredNames.slice(0, 3).join(', ')}.`,
         },
       ],
     };
@@ -110,13 +138,18 @@ export const getCareerRoleCatalog = (databaseRoles = [], databaseSkills = []) =>
 export const getCareerSkillCatalog = (databaseSkills = []) => {
   const skills = [...databaseSkills];
   const seen = new Set(skills.map((skill) => normalize(skill.name)));
-  roleCatalog.forEach((role) => role.skills.forEach((name) => {
+  const catalogSkillNames = roleCatalog.flatMap((role) => [
+    ...getCurriculumSkillNames(role.title),
+    ...getOptionalCurriculumSkillNames(role.title),
+    ...role.skills,
+  ]);
+  catalogSkillNames.forEach((name) => {
     const key = normalize(name);
     if (!seen.has(key)) {
       seen.add(key);
       skills.push({ id: `catalog-skill-${slug(name)}`, name, catalogOnly: true });
     }
-  }));
+  });
   return skills;
 };
 

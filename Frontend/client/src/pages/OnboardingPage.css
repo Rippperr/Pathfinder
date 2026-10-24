@@ -39,11 +39,14 @@
 .onboarding-skill-option { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2.35rem; padding: 0.42rem 0.7rem; border: 1px solid rgba(161, 188, 223, 0.18); border-radius: 0.65rem; color: #bdd0e9; background: rgba(8, 25, 45, 0.7); cursor: pointer; font-size: 0.82rem; transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease; }
 .onboarding-skill-option:hover { border-color: rgba(121, 226, 195, 0.5); color: #f0f8ff; }
 .onboarding-skill-option input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.onboarding-skill-option.is-unavailable { opacity: .48; cursor: not-allowed; }
+.onboarding-skill-option.is-unavailable input { pointer-events: none; }
 .onboarding-skill-option:focus-within { outline: 2px solid #79e2c3; outline-offset: 2px; }
 .skill-option-check { display: grid; width: 1.05rem; height: 1.05rem; place-items: center; border: 1px solid rgba(165, 192, 226, 0.35); border-radius: 0.32rem; color: transparent; font-size: 0.72rem; font-weight: 900; }
 .onboarding-skill-option.is-selected { border-color: rgba(121, 226, 195, 0.48); color: #dffcf3; background: rgba(66, 173, 145, 0.14); }
 .onboarding-skill-option.is-selected .skill-option-check { border-color: #79e2c3; color: #08281f; background: #79e2c3; }
 .skills-loading, .skills-empty { margin: 0; color: #9db4d2; font-size: 0.9rem; }
+.skills-load-notice { margin: 0 0 0.85rem; padding: 0.7rem 0.8rem; border: 1px solid rgba(255, 200, 107, 0.22); border-radius: 0.65rem; color: #f1d8a8; background: rgba(255, 200, 107, 0.06); font-size: 0.8rem; line-height: 1.5; }
 .onboarding-error { margin: 0; color: #ff9ca8; font-size: 0.9rem; }
 .onboarding-submit-row { display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; padding: 0.4rem 0 1rem; }
 .onboarding-submit-row > span { color: #8099b9; font-size: 0.79rem; line-height: 1.5; }
