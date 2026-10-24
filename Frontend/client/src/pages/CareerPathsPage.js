@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../contexts/UserContext';
@@ -17,6 +17,8 @@ const CareerPathsPage = () => {
   const [familyFilter, setFamilyFilter] = useState('All fields');
   const [loading, setLoading] = useState(true);
   const [choosingRoleId, setChoosingRoleId] = useState('');
+  const guideTriggerRef = useRef(null);
+  const closeGuideRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -55,7 +57,45 @@ const CareerPathsPage = () => {
     return matchesFamily && matchesSearch;
   }), [roles, familyFilter, query]);
 
-  const toggleRoleDetails = (roleId) => setExpandedRoleId((current) => current === roleId ? null : roleId);
+  const toggleRoleDetails = (roleId, event) => {
+    if (expandedRoleId === roleId) setExpandedRoleId(null);
+    else {
+      guideTriggerRef.current = event.currentTarget;
+      setExpandedRoleId(roleId);
+    }
+  };
+
+  useEffect(() => {
+    if (!expandedRoleId) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeGuideRef.current?.focus();
+    const handleGuideKeys = (event) => {
+      if (event.key === 'Escape') {
+        setExpandedRoleId(null);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const dialog = closeGuideRef.current?.closest('.role-guide-dialog');
+      const focusable = dialog?.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener('keydown', handleGuideKeys);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleGuideKeys);
+      guideTriggerRef.current?.focus();
+    };
+  }, [expandedRoleId]);
 
   const chooseRole = async (role) => {
     if (!session?.user?.id || choosingRoleId) return;
@@ -73,6 +113,11 @@ const CareerPathsPage = () => {
     setChoosingRoleId('');
     navigate('/dashboard', { state: { roleSyncFailed: syncFailed } });
   };
+
+  const activeGuideRole = roles.find((role) => role.id === expandedRoleId);
+  const guideSkills = activeGuideRole?.resolvedSkills || (activeGuideRole?.role_skills || []).map(({ skill_id }) => skills.find((skill) => skill.id === skill_id)).filter(Boolean);
+  const guideKnownSkillCount = guideSkills.filter((skill) => userSkills.includes(skill.id)).length;
+  const guideIsTargetRole = normalizeCareerTitle(profile?.desired_role || '') === normalizeCareerTitle(activeGuideRole?.title || '');
 
   return (
     <main className="career-paths-page">
@@ -103,31 +148,18 @@ const CareerPathsPage = () => {
         {loading ? <p className="role-empty-state">Loading role details…</p> : visibleRoles.length ? (
           <div className="role-catalog-grid">
             {visibleRoles.map((role) => {
-              const isExpanded = expandedRoleId === role.id;
               const requiredSkills = role.resolvedSkills || (role.role_skills || []).map(({ skill_id }) => skills.find((skill) => skill.id === skill_id)).filter(Boolean);
               const knownSkillCount = requiredSkills.filter((skill) => userSkills.includes(skill.id)).length;
               const isTargetRole = normalizeCareerTitle(profile?.desired_role || '') === normalizeCareerTitle(role.title);
               return (
-                <Card key={role.id} className={`role-catalog-card${isExpanded ? ' is-expanded' : ''}`}>
+                <Card key={role.id} className="role-catalog-card">
                   <div className="role-catalog-card-top"><span className="role-catalog-mark" aria-hidden="true">{role.mark}</span><span className="role-family-label">{role.family}</span>{isTargetRole && <span className="role-target-label">Your target</span>}</div>
                   <h2>{role.title}</h2>
                   <p className="role-summary">{role.summary}</p>
                   <div className="role-skill-summary"><span>{knownSkillCount} of {requiredSkills.length} listed skills in your profile</span><span className="role-skill-track"><i style={{ width: requiredSkills.length ? `${Math.round((knownSkillCount / requiredSkills.length) * 100)}%` : '0%' }} /></span></div>
                   <div className="role-skill-chips">{requiredSkills.slice(0, 4).map((skill) => <span className={userSkills.includes(skill.id) ? 'skill-chip is-known' : 'skill-chip'} key={skill.id}>{skill.name}</span>)}{requiredSkills.length > 4 && <span className="skill-chip-more">+{requiredSkills.length - 4}</span>}</div>
-                  {isExpanded && (
-                    <div className="role-expanded-details">
-                      <div><h3>Role overview</h3><p>{role.overview}</p></div>
-                      <div><h3>What you’ll work on</h3><ul>{role.responsibilities.map((item) => <li key={item}>{item}</li>)}</ul></div>
-                      <div><h3>Skills for this role</h3><div className="role-skill-chips role-skill-chips-expanded">{requiredSkills.map((skill) => <span className={userSkills.includes(skill.id) ? 'skill-chip is-known' : 'skill-chip'} key={skill.id}>{skill.name}</span>)}</div></div>
-                      {role.optionalSkills?.length > 0 && <div><h3>Common specializations</h3><p>These vary by employer and product. Use job descriptions to decide which are relevant.</p><div className="role-skill-chips role-skill-chips-expanded">{role.optionalSkills.map((skill) => <span className="skill-chip" key={skill.id}>{skill.name}</span>)}</div></div>}
-                      <div><h3>How to get started</h3><p>{role.entryPath}</p></div>
-                      <div><h3>Project to show your skills</h3><p>{role.portfolioProject}</p></div>
-                      {role.nextRoles?.length > 0 && <div><h3>Possible next steps</h3><p>{role.nextRoles.join(' · ')}</p></div>}
-                      <div><h3>Recommended learning</h3><div className="role-learning-links">{role.learningResources.map((resource) => <a href={resource.url} key={`${resource.provider}-${resource.title}`} target="_blank" rel="noreferrer"><span><b>{resource.title}</b><small>{resource.provider} · {resource.format}</small></span><span aria-hidden="true">↗</span></a>)}</div></div>
-                    </div>
-                  )}
                   <div className="role-card-actions">
-                    <button type="button" className="role-details-toggle" onClick={() => toggleRoleDetails(role.id)} aria-expanded={isExpanded}>{isExpanded ? 'Close role guide' : 'View complete role guide'} <span aria-hidden="true">{isExpanded ? '↑' : '→'}</span></button>
+                    <button type="button" className="role-details-toggle" onClick={(event) => toggleRoleDetails(role.id, event)} aria-haspopup="dialog" aria-expanded={expandedRoleId === role.id}>View complete role guide <span aria-hidden="true">↗</span></button>
                     <button type="button" className="role-roadmap-button" onClick={() => chooseRole(role)} disabled={Boolean(choosingRoleId)}>{choosingRoleId === role.id ? 'Saving…' : isTargetRole ? 'Continue roadmap' : 'Build this roadmap'} <span aria-hidden="true">→</span></button>
                   </div>
                 </Card>
@@ -136,6 +168,28 @@ const CareerPathsPage = () => {
           </div>
         ) : <p className="role-empty-state">No roles match that search. Try a broader title, skill, or field.</p>}
       </section>
+      {activeGuideRole && <div className="role-guide-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setExpandedRoleId(null); }}>
+        <section className="role-guide-dialog" role="dialog" aria-modal="true" aria-labelledby="role-guide-title" aria-describedby="role-guide-summary">
+          <header className="role-guide-header">
+            <div className="role-guide-brand"><span className="role-guide-mark" aria-hidden="true">{activeGuideRole.mark}</span><div><p>{activeGuideRole.family}</p><h2 id="role-guide-title">{activeGuideRole.title}</h2></div></div>
+            <button ref={closeGuideRef} type="button" className="role-guide-close" onClick={() => setExpandedRoleId(null)} aria-label="Close role guide">×</button>
+          </header>
+          <div className="role-guide-content">
+            <section className="role-guide-intro"><p className="role-guide-eyebrow">COMPLETE ROLE GUIDE</p><p id="role-guide-summary">{activeGuideRole.summary}</p><div className="role-guide-skill-progress"><div><span>Your listed skills</span><b>{guideKnownSkillCount} / {guideSkills.length}</b></div><span className="role-guide-progress-track"><i style={{ width: guideSkills.length ? `${Math.round((guideKnownSkillCount / guideSkills.length) * 100)}%` : '0%' }} /></span></div></section>
+            <div className="role-guide-sections">
+              <section className="role-guide-section role-guide-overview"><h3>Role overview</h3><p>{activeGuideRole.overview}</p></section>
+              <section className="role-guide-section"><h3>What you’ll work on</h3><ul>{activeGuideRole.responsibilities.map((item) => <li key={item}>{item}</li>)}</ul></section>
+              <section className="role-guide-section"><h3>Skills for this role</h3><div className="role-skill-chips role-skill-chips-expanded">{guideSkills.map((skill) => <span className={userSkills.includes(skill.id) ? 'skill-chip is-known' : 'skill-chip'} key={skill.id}>{skill.name}</span>)}</div><p className="role-guide-hint">Green skills are already listed on your profile.</p></section>
+              {activeGuideRole.optionalSkills?.length > 0 && <section className="role-guide-section"><h3>Common specializations</h3><p>These vary by employer and product. Use current job descriptions to choose what is relevant.</p><div className="role-skill-chips role-skill-chips-expanded">{activeGuideRole.optionalSkills.map((skill) => <span className="skill-chip" key={skill.id || skill.name}>{skill.name}</span>)}</div></section>}
+              <section className="role-guide-section"><h3>How to get started</h3><p>{activeGuideRole.entryPath}</p></section>
+              <section className="role-guide-section"><h3>Portfolio project</h3><p>{activeGuideRole.portfolioProject}</p></section>
+              {activeGuideRole.nextRoles?.length > 0 && <section className="role-guide-section"><h3>Possible next steps</h3><p>{activeGuideRole.nextRoles.join(' · ')}</p></section>}
+              <section className="role-guide-section role-guide-learning"><h3>Recommended learning</h3><div className="role-learning-links">{activeGuideRole.learningResources.map((resource) => <a href={resource.url} key={`${resource.provider}-${resource.title}`} target="_blank" rel="noreferrer"><span><b>{resource.title}</b><small>{resource.provider} · {resource.format}</small></span><span aria-hidden="true">↗</span></a>)}</div></section>
+            </div>
+          </div>
+          <footer className="role-guide-footer"><span>{guideIsTargetRole ? 'This is your current target role.' : 'Ready to work toward this role?'}</span><button type="button" className="role-roadmap-button" onClick={() => chooseRole(activeGuideRole)} disabled={Boolean(choosingRoleId)}>{choosingRoleId === activeGuideRole.id ? 'Saving…' : guideIsTargetRole ? 'Continue roadmap' : 'Build this roadmap'} <span aria-hidden="true">→</span></button></footer>
+        </section>
+      </div>}
     </main>
   );
 };
