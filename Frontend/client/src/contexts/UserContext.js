@@ -8,13 +8,17 @@ export const UserProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const activeUserId = useRef(null);
+  const profileRequestId = useRef(0);
 
   // Function to fetch the profile with built-in retry logic
-  const fetchProfile = useCallback(async (user, retries = 3) => {
-    setLoading(true);
+  const fetchProfile = useCallback(async (user, retries = 3, showLoading = true) => {
+    const requestId = ++profileRequestId.current;
+    const requestedUserId = user?.id;
+    const isCurrentRequest = () => requestId === profileRequestId.current && activeUserId.current === requestedUserId;
+    if (showLoading) setLoading(true);
     if (!user) {
       setProfile(null);
-      setLoading(false);
+      if (showLoading) setLoading(false);
       return;
     }
 
@@ -24,11 +28,13 @@ export const UserProvider = ({ children }) => {
         .select('*')
         .eq('id', user.id)
         .single();
+
+      if (!isCurrentRequest()) return;
       
       // If data is found OR the error is NOT "Row not found", we exit the loop
       if (data) {
         setProfile(data);
-        setLoading(false);
+        if (showLoading) setLoading(false);
         return;
       }
 
@@ -39,12 +45,12 @@ export const UserProvider = ({ children }) => {
         await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
       } else if (error) {
         console.error("Final Profile Fetch Error:", error.message);
-        setProfile(null);
-        setLoading(false);
+        if (showLoading) setProfile(null);
+        if (showLoading) setLoading(false);
         return;
       }
     }
-    setLoading(false);
+    if (isCurrentRequest() && showLoading) setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -53,12 +59,14 @@ export const UserProvider = ({ children }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       if (!session) {
+        profileRequestId.current += 1;
         activeUserId.current = null;
         setProfile(null);
         setLoading(false);
         return;
       }
       if (event === 'INITIAL_SESSION' || activeUserId.current !== session.user.id) {
+        setProfile(null);
         activeUserId.current = session.user.id;
         fetchProfile(session.user);
       }
@@ -71,7 +79,7 @@ export const UserProvider = ({ children }) => {
     session,
     profile,
     loading,
-    refetchProfile: () => fetchProfile(session?.user),
+    refetchProfile: () => fetchProfile(session?.user, 3, false),
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

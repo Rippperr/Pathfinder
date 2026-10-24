@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../contexts/UserContext';
@@ -18,23 +18,47 @@ const SettingsPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [busy, setBusy] = useState('');
   const [notice, setNotice] = useState(null);
+  const preferenceSaveQueue = useRef(Promise.resolve());
+  const preferenceSaveSequence = useRef(0);
+  const latestPreferences = useRef(defaults);
 
   useEffect(() => {
     setEmail(user?.email || '');
     if (!user?.id) return;
+    let localPreferences = {};
     try {
-      const saved = JSON.parse(localStorage.getItem(preferenceKey(user.id)) || '{}');
-      setPreferences({ ...defaults, ...saved });
+      localPreferences = JSON.parse(localStorage.getItem(preferenceKey(user.id)) || '{}');
     } catch {
-      setPreferences(defaults);
+      localPreferences = {};
     }
-  }, [user?.id, user?.email]);
+    const accountPreferences = user.user_metadata?.pathfinder_learning_preferences;
+    const resolvedPreferences = { ...defaults, ...(accountPreferences || localPreferences) };
+    latestPreferences.current = resolvedPreferences;
+    setPreferences(resolvedPreferences);
+  }, [user?.id, user?.email, user?.user_metadata?.pathfinder_learning_preferences]);
 
   const updatePreference = (key, value) => {
     const updated = { ...preferences, [key]: value };
+    latestPreferences.current = updated;
     setPreferences(updated);
-    localStorage.setItem(preferenceKey(user.id), JSON.stringify(updated));
-    setNotice({ type: 'success', text: 'Your learning preferences have been saved on this device.' });
+    try { localStorage.setItem(preferenceKey(user.id), JSON.stringify(updated)); } catch { /* account sync remains available */ }
+    const saveSequence = ++preferenceSaveSequence.current;
+    setBusy('preferences');
+    preferenceSaveQueue.current = preferenceSaveQueue.current
+      .catch(() => undefined)
+      .then(async () => {
+        const { error } = await supabase.auth.updateUser({ data: { pathfinder_learning_preferences: latestPreferences.current } });
+        if (saveSequence !== preferenceSaveSequence.current) return;
+        setBusy('');
+        setNotice(error
+          ? { type: 'error', text: 'Saved on this device, but account sync failed. Try again when your connection is restored.' }
+          : { type: 'success', text: 'Your learning preferences are saved to your account.' });
+      })
+      .catch(() => {
+        if (saveSequence !== preferenceSaveSequence.current) return;
+        setBusy('');
+        setNotice({ type: 'error', text: 'Saved on this device, but account sync failed. Try again when your connection is restored.' });
+      });
   };
 
   const changeEmail = async (event) => {
@@ -113,12 +137,12 @@ const SettingsPage = () => {
         <div className="settings-section-heading"><span>02</span><div><h2>Learning preferences</h2><p>Shape the resources Pathfinder recommends for your goals.</p></div></div>
         <Card className="settings-card">
           <label className="settings-select-label">How do you prefer to learn?
-            <select value={preferences.learningStyle} onChange={(event) => updatePreference('learningStyle', event.target.value)}>
+            <select value={preferences.learningStyle} onChange={(event) => updatePreference('learningStyle', event.target.value)} disabled={busy === 'preferences'}>
               <option value="balanced">A balanced mix</option><option value="video">Video courses and playlists</option><option value="reading">Guides and official documentation</option><option value="hands-on">Hands-on practice</option>
             </select>
           </label>
-          <fieldset className="hours-fieldset"><legend>Weekly learning target</legend><div className="hours-options">{['2', '4', '6', '8'].map((hours) => <label key={hours} className={preferences.weeklyHours === hours ? 'selected' : ''}><input type="radio" name="weekly-hours" value={hours} checked={preferences.weeklyHours === hours} onChange={() => updatePreference('weeklyHours', hours)} /><span>{hours} hrs</span></label>)}</div></fieldset>
-          <p className="settings-muted">Preferences are saved in this browser and used to personalize your dashboard. Weekly targets are guidance, not a time tracker.</p>
+          <fieldset className="hours-fieldset" disabled={busy === 'preferences'}><legend>Weekly learning target</legend><div className="hours-options">{['2', '4', '6', '8'].map((hours) => <label key={hours} className={preferences.weeklyHours === hours ? 'selected' : ''}><input type="radio" name="weekly-hours" value={hours} checked={preferences.weeklyHours === hours} onChange={() => updatePreference('weeklyHours', hours)} /><span>{hours} hrs</span></label>)}</div></fieldset>
+          <p className="settings-muted">Preferences sync to your account so they follow you across devices. Weekly targets are guidance, not a time tracker.{busy === 'preferences' ? ' Saving…' : ''}</p>
         </Card>
       </section>
 

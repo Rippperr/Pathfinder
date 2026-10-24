@@ -1,10 +1,6 @@
 // /server/app.js
 
-// Capture the result of the config() function in a new variable
-const dotenvResult = require('dotenv').config();
-
-// Now you can log that variable
-console.log('Dotenv config result:', dotenvResult);
+require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');

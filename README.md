@@ -55,7 +55,7 @@ These screenshots show the current public-facing design. Dashboard and profile p
 2. Add your current experience, skills, and desired role to your profile.
 3. Choose a target role on the dashboard to compare your profile with that role's skill map.
 4. Work through roadmap steps, update progress, and optionally add evidence.
-5. Pathfinder saves account and profile data in Supabase. Learning preferences are stored in the browser; roadmap progress syncs to Supabase when its migration has been applied, with a local browser fallback otherwise.
+5. Pathfinder saves account and profile data in Supabase. Learning preferences sync to the signed-in account, with a local browser fallback if the network is unavailable. Roadmap progress syncs to Supabase when its migration has been applied, with a local browser fallback otherwise.
 
 ## 🚀 Run locally
 

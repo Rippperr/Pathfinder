@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { UserProvider, useUser } from './contexts/UserContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Sidebar from './components/layout/Sidebar';
@@ -53,6 +53,8 @@ const AppContent = () => {
               <Route path="/edit-profile" element={<EditProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/paths" element={<CareerPathsPage />} />
+              <Route path="/career-paths" element={<Navigate to="/paths" replace />} />
+              <Route path="*" element={<Navigate to={session ? '/dashboard' : '/login'} replace />} />
             </Route>
           </Routes>
         </div>

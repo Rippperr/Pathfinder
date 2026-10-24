@@ -35,13 +35,14 @@ const DashboardPage = () => {
 
   useEffect(() => {
     if (!session?.user?.id) return;
+    const accountPreferences = session.user.user_metadata?.pathfinder_learning_preferences;
     try {
       const saved = JSON.parse(localStorage.getItem(`pathfinder-settings:${session.user.id}`) || '{}');
-      setLearningPreferences({ learningStyle: 'balanced', weeklyHours: '4', ...saved });
+      setLearningPreferences({ learningStyle: 'balanced', weeklyHours: '4', ...(accountPreferences || saved) });
     } catch {
-      setLearningPreferences({ learningStyle: 'balanced', weeklyHours: '4' });
+      setLearningPreferences({ learningStyle: 'balanced', weeklyHours: '4', ...(accountPreferences || {}) });
     }
-  }, [session?.user?.id]);
+  }, [session?.user?.id, session?.user?.user_metadata?.pathfinder_learning_preferences]);
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -93,7 +94,7 @@ const DashboardPage = () => {
     setProgressStorage('loading');
 
     supabase.from('user_skill_progress')
-      .select('role_title, skill_name, status, evidence, completed_at')
+      .select('role_title, skill_name, status, evidence, completed_at, updated_at')
       .eq('user_id', userId)
       .then(async ({ data, error }) => {
         if (!active) return;
@@ -104,15 +105,25 @@ const DashboardPage = () => {
         const remoteRows = data || [];
         const remoteMap = mapProgressRows(remoteRows);
         const localMap = mapProgressRows(localRows);
-        const merged = { ...localMap, ...remoteMap };
+        const rowTimestamp = (row) => {
+          const timestamp = Date.parse(row?.updated_at || row?.completed_at || '');
+          return Number.isNaN(timestamp) ? 0 : timestamp;
+        };
+        const merged = { ...remoteMap };
+        const localRowsToSync = [];
+        Object.entries(localMap).forEach(([key, localRow]) => {
+          const remoteRow = remoteMap[key];
+          if (!remoteRow || rowTimestamp(localRow) > rowTimestamp(remoteRow)) {
+            const rowToSync = { ...localRow, updated_at: localRow.updated_at || new Date().toISOString() };
+            merged[key] = rowToSync;
+            localRowsToSync.push({ user_id: userId, ...rowToSync });
+          }
+        });
         setSkillProgress(merged);
         setProgressStorage('synced');
         try { localStorage.setItem(storageKey, JSON.stringify(Object.values(merged))); } catch { /* remote copy remains saved */ }
-        const missingRemoteRows = Object.entries(localMap)
-          .filter(([key]) => !remoteMap[key])
-          .map(([, row]) => ({ user_id: userId, ...row }));
-        if (missingRemoteRows.length) {
-          const { error: migrationError } = await supabase.from('user_skill_progress').upsert(missingRemoteRows, { onConflict: 'user_id,role_title,skill_name' });
+        if (localRowsToSync.length) {
+          const { error: migrationError } = await supabase.from('user_skill_progress').upsert(localRowsToSync, { onConflict: 'user_id,role_title,skill_name' });
           if (active && migrationError) setProgressStorage('local');
         }
       })
@@ -156,7 +167,11 @@ const DashboardPage = () => {
   const recommendedLearningResources = useMemo(() => {
     if (!selectedRole) return [];
     const missingSkillNames = requiredSkillsForRole
-      .filter((id) => !userSkills.includes(id))
+      .filter((id) => {
+        const skill = skills.find((item) => item.id === id);
+        const completed = skill && skillProgress[progressKey(selectedRole.title, skill.name)]?.status === 'completed';
+        return !userSkills.includes(id) && !completed;
+      })
       .map((id) => skills.find((skill) => skill.id === id)?.name)
       .filter(Boolean);
     const resources = selectedRole.learningResources || [];
@@ -170,7 +185,15 @@ const DashboardPage = () => {
       return false;
     };
     return [...base].sort((a, b) => Number(preferredFormat(b)) - Number(preferredFormat(a)));
-  }, [selectedRole, userSkills, requiredSkillsForRole, skills, learningPreferences]);
+  }, [selectedRole, userSkills, requiredSkillsForRole, skills, learningPreferences, skillProgress]);
+
+  const completedRoadmapSkillIds = useMemo(() => {
+    if (!selectedRole) return [];
+    return (selectedRole.roadmapPhases || [])
+      .flatMap((phase) => phase.skills)
+      .filter((skill) => skillProgress[progressKey(selectedRole.title, skill.name)]?.status === 'completed')
+      .map((skill) => skill.id);
+  }, [selectedRole, skillProgress]);
 
   const handleRoleChange = async (role) => {
     setSelectedRoleId(role.id);
@@ -191,6 +214,7 @@ const DashboardPage = () => {
       status: changes.status,
       evidence: changes.evidence || '',
       completed_at: changes.status === 'completed' ? (changes.completed_at || new Date().toISOString()) : null,
+      updated_at: new Date().toISOString(),
     };
     const next = { ...skillProgress, [key]: row };
     setSkillProgress(next);
@@ -259,7 +283,7 @@ const DashboardPage = () => {
             <div className="career-goal-progress" role="progressbar" aria-label="Career goal roadmap progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow={roadmapSummary.percent}><span style={{ width: `${roadmapSummary.percent}%` }} /></div>
             <div className="career-goal-next"><span aria-hidden="true">→</span><p>{roadmapSummary.nextSkill ? <>Your next milestone: <b>{roadmapSummary.nextSkill.name}</b></> : 'You have completed every skill in this roadmap.'}</p></div>
             {roadmapSummary.nextSkill && <a className="career-focus-primary" href="#career-roadmap">Continue with {roadmapSummary.nextSkill.name} <span aria-hidden="true">↓</span></a>}
-          </> : <div className="career-goal-empty"><p>Select your target role to turn this goal into a trackable roadmap.</p><Link to="/career-paths">Explore career paths <span aria-hidden="true">→</span></Link></div>}
+          </> : <div className="career-goal-empty"><p>Select your target role to turn this goal into a trackable roadmap.</p><Link to="/paths">Explore career paths <span aria-hidden="true">→</span></Link></div>}
         </Card>
 
         <Card className="career-focus-card achievements-roadmap-card">
@@ -280,7 +304,7 @@ const DashboardPage = () => {
                     </select>
                     <button type="button" onClick={() => attachAchievementToRoadmap(achievement)} disabled={!chosenSkill || alreadyLinked}>{alreadyLinked ? 'Added to roadmap' : 'Use as evidence'} <span aria-hidden="true">↗</span></button>
                     {achievementMessages[achievement.id] && <small role="status">{achievementMessages[achievement.id]}</small>}
-                  </div> : <Link to="/career-paths" className="roadmap-achievement-browse">Choose a role to connect this achievement →</Link>}
+                  </div> : <Link to="/paths" className="roadmap-achievement-browse">Choose a role to connect this achievement →</Link>}
                 </div>
               </div>;
             })}
@@ -295,6 +319,7 @@ const DashboardPage = () => {
           requiredSkills={requiredSkillsForRole}
           allSkills={skills}
           roleTitle={selectedRole?.title}
+          completedSkillIds={completedRoadmapSkillIds}
         />
       </Card>
 

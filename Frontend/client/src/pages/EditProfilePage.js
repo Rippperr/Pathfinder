@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../contexts/UserContext'; // Ensure this hook provides refetchProfile
@@ -20,6 +20,8 @@ const EditProfilePage = () => {
   const [location, setLocation] = useState('');
   const [careerGoals, setCareerGoals] = useState('');
   const [achievements, setAchievements] = useState([]);
+  const initialAchievementsRef = useRef([]);
+  const [achievementLoadError, setAchievementLoadError] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const [photoError, setPhotoError] = useState('');
@@ -27,7 +29,14 @@ const EditProfilePage = () => {
   const [saveSuccess, setSaveSuccess] = useState('');
 
   useEffect(() => {
-    if (contextProfile) {
+    let active = true;
+    const loadProfile = async () => {
+      if (!contextProfile) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      setAchievementLoadError('');
       setName(contextProfile.name || '');
       setTitle(contextProfile.title || '');
       setDesiredRole(contextProfile.desired_role || '');
@@ -37,17 +46,28 @@ const EditProfilePage = () => {
       setCareerGoals(contextProfile.career_goals || '');
       setAvatarUrl(contextProfile.avatar_url || '');
 
-      const getAchievements = async () => {
-        const { data } = await supabase
-          .from('achievements')
-          .select('*')
-          .eq('user_id', contextProfile.id);
-        if (data) setAchievements(data);
-      };
-      
-      getAchievements();
-    }
-    setLoading(false);
+      const { data, error } = await supabase
+        .from('achievements')
+        .select('*')
+        .eq('user_id', contextProfile.id);
+      if (!active) return;
+      if (error) {
+        initialAchievementsRef.current = [];
+        setAchievements([]);
+        setAchievementLoadError(`We couldn’t load your saved achievements, so saving is paused to protect them: ${error.message}`);
+      } else {
+        const loadedAchievements = data || [];
+        initialAchievementsRef.current = loadedAchievements;
+        setAchievements(loadedAchievements);
+      }
+      setLoading(false);
+    };
+    loadProfile().catch((error) => {
+      if (!active) return;
+      setAchievementLoadError(`We couldn’t load your saved achievements, so saving is paused to protect them: ${error.message || 'connection unavailable'}`);
+      setLoading(false);
+    });
+    return () => { active = false; };
   }, [contextProfile]);
 
   const handleAchievementChange = (index, field, value) => {
@@ -96,6 +116,7 @@ const EditProfilePage = () => {
 
   const handleSave = async (event) => {
     event.preventDefault();
+    if (achievementLoadError) return;
     setLoading(true);
     setSaveError('');
     setSaveSuccess('');
@@ -111,30 +132,55 @@ const EditProfilePage = () => {
       return;
     }
 
-    const { error: deleteError } = await supabase
-      .from('achievements')
-      .delete()
-      .eq('user_id', session.user.id);
+    const originalAchievements = initialAchievementsRef.current;
+    const originalIds = new Set(originalAchievements.map((item) => item.id).filter(Boolean));
+    const achievementsToKeep = achievements.filter((item) => item.title.trim());
+    const originalById = new Map(originalAchievements.filter((item) => item.id).map((item) => [item.id, item]));
+    const unchangedAchievements = [];
+    const achievementsToInsert = [];
+    achievementsToKeep.forEach((item) => {
+      const original = originalById.get(item.id);
+      const title = item.title.trim();
+      const subtitle = (item.subtitle || '').trim();
+      if (!original || original.title?.trim() !== title || (original.subtitle || '').trim() !== subtitle) {
+        achievementsToInsert.push({ user_id: session.user.id, title, subtitle });
+      } else {
+        unchangedAchievements.push(item);
+      }
+    });
 
-    const achievementsToInsert = achievements
-      .filter(a => a.title)
-      .map(a => ({ user_id: session.user.id, title: a.title, subtitle: a.subtitle }));
-    
-    const { error: achievementsError } = deleteError
-      ? { error: null }
-      : achievementsToInsert.length
-        ? await supabase.from('achievements').insert(achievementsToInsert)
-        : { error: null };
+    // Insert additions/edits before removing old rows, so a failed insert never erases the saved version.
+    const { data: insertedAchievements, error: insertAchievementsError } = achievementsToInsert.length
+      ? await supabase.from('achievements').insert(achievementsToInsert).select('*')
+      : { data: [], error: null };
 
-    if (deleteError || achievementsError) {
-      setSaveError(`Your profile photo and details were saved, but achievements could not be updated: ${(deleteError || achievementsError).message}`);
+    if (insertAchievementsError) {
+      setSaveError(`Your profile details were saved, but achievements could not be updated. Your previous achievements are still intact: ${insertAchievementsError.message}`);
       setLoading(false);
-    } else {
-      await refetchProfile(); 
-      setLoading(false);
-      setSaveSuccess('Your profile has been saved.');
-      navigate('/profile', { state: { profileSaved: true } });
+      return;
     }
+
+    const savedAchievements = [...unchangedAchievements, ...(insertedAchievements || [])];
+    setAchievements(savedAchievements);
+    const savedIds = new Set(savedAchievements.map((item) => item.id).filter(Boolean));
+    const explicitlyRemovedIds = [...originalIds].filter((id) => !savedIds.has(id));
+    const { error: deleteRemovedError } = explicitlyRemovedIds.length
+      ? await supabase.from('achievements').delete().eq('user_id', session.user.id).in('id', explicitlyRemovedIds)
+      : { error: null };
+    if (deleteRemovedError) {
+      const stillPendingDelete = originalAchievements.filter((item) => explicitlyRemovedIds.includes(item.id));
+      initialAchievementsRef.current = [...savedAchievements, ...stillPendingDelete];
+      setSaveError(`Your profile and achievement edits were saved, but one removed achievement could not be deleted: ${deleteRemovedError.message}`);
+      setLoading(false);
+      return;
+    }
+
+    // Keep the ref in sync after a successful save; no full-table delete/reinsert is used.
+    initialAchievementsRef.current = savedAchievements;
+    await refetchProfile();
+    setLoading(false);
+    setSaveSuccess('Your profile has been saved.');
+    navigate('/profile', { state: { profileSaved: true } });
   };
 
   if (loading) return <div>Loading...</div>;
@@ -201,6 +247,7 @@ const EditProfilePage = () => {
         <Card>
           <h3>Recent achievements</h3>
           <p className="edit-section-description">Show the work and results behind your skills. Projects, certifications, launches, and measurable improvements all count.</p>
+          {achievementLoadError && <p className="edit-profile-error" role="alert">{achievementLoadError}</p>}
           {achievements.length === 0 && <p className="achievement-empty-state">No achievements added yet. Start with a project or milestone you can explain in an interview.</p>}
           {achievements.map((ach, index) => (
             <div key={index} className="achievement-edit-item">
@@ -213,7 +260,7 @@ const EditProfilePage = () => {
         </Card>
         {saveError && <p className="edit-profile-error" role="alert">{saveError}</p>}
         {saveSuccess && <p className="edit-profile-success" role="status">{saveSuccess}</p>}
-        <Button type="submit" disabled={loading || uploading}>{loading ? 'Saving…' : uploading ? 'Uploading photo…' : 'Save all changes'}</Button>
+        <Button type="submit" disabled={loading || uploading || Boolean(achievementLoadError)}>{loading ? 'Saving…' : uploading ? 'Uploading photo…' : achievementLoadError ? 'Saving paused until achievements load' : 'Save all changes'}</Button>
       </form>
     </div>
   );

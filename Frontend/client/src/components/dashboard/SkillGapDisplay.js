@@ -1,7 +1,7 @@
 import React from 'react';
 import './SkillGapDisplay.css';
 
-const SkillGapDisplay = ({ userSkills, requiredSkills, allSkills, roleTitle }) => {
+const SkillGapDisplay = ({ userSkills, requiredSkills, allSkills, roleTitle, completedSkillIds = [] }) => {
   // Find the full skill objects for the skills the user currently has
   const userSkillObjects = userSkills.map(id => allSkills.find(s => s.id === id)).filter(Boolean);
 
@@ -26,12 +26,13 @@ const SkillGapDisplay = ({ userSkills, requiredSkills, allSkills, roleTitle }) =
                 if (!skill) return null;
 
                 // Check if the user's skill list includes this required skill
-                const hasSkill = userSkills.includes(skillId);
+                const hasSkill = userSkills.includes(skillId) || completedSkillIds.includes(skillId);
+                const completedOnRoadmap = completedSkillIds.includes(skillId) && !userSkills.includes(skillId);
 
                 return (
                   // Apply 'matched' or 'missing' class based on the check
-                  <span key={skill.id} className={`skill-badge ${hasSkill ? 'matched' : 'missing'}`}>
-                    {skill.name}
+                  <span key={skill.id} className={`skill-badge ${hasSkill ? 'matched' : 'missing'}`} title={completedOnRoadmap ? 'Marked completed in your roadmap' : hasSkill ? 'Listed in your profile' : 'Not yet listed or completed'}>
+                    {skill.name}{completedOnRoadmap ? ' ✓' : ''}
                   </span>
                 );
               })
