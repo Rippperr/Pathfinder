@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { useUser } from '../contexts/UserContext';
@@ -16,23 +16,48 @@ const ProfilePage = () => {
   const [isAddingSkill, setIsAddingSkill] = useState(false);
   const [achievements, setAchievements] = useState([]);
   const [skillError, setSkillError] = useState('');
+  const [pageLoading, setPageLoading] = useState(true);
+  const [pageLoadError, setPageLoadError] = useState('');
+  const [failedQueries, setFailedQueries] = useState([]);
+  const [reloadCount, setReloadCount] = useState(0);
 
   useEffect(() => {
     let active = true;
     const getPageData = async () => {
-      const [{ data: allSkillsData }, { data: userSkillsData }, { data: achievementsData }] = await Promise.all([
-        supabase.from('skills').select('*').order('name'),
-        supabase.from('user_skills').select('skill_id').eq('user_id', session.user.id),
-        supabase.from('achievements').select('*').eq('user_id', session.user.id),
-      ]);
+      setPageLoading(true);
+      setPageLoadError('');
+      let skillsResult, userSkillsResult, achievementsResult;
+      try {
+        [skillsResult, userSkillsResult, achievementsResult] = await Promise.all([
+          supabase.from('skills').select('*').order('name'),
+          supabase.from('user_skills').select('skill_id').eq('user_id', session.user.id),
+          supabase.from('achievements').select('*').eq('user_id', session.user.id),
+        ]);
+      } catch (error) {
+        if (!active) return;
+        setPageLoadError(`Profile details could not be loaded: ${error.message || 'connection unavailable'}`);
+        setFailedQueries(['skills', 'your skills', 'achievements']);
+        setPageLoading(false);
+        return;
+      }
       if (!active) return;
-      if (allSkillsData) setAllSkills(allSkillsData);
-      if (userSkillsData) setUserSkillIds(new Set(userSkillsData.map((skill) => skill.skill_id)));
-      if (achievementsData) setAchievements(achievementsData);
+      const errors = [skillsResult.error, userSkillsResult.error, achievementsResult.error].filter(Boolean);
+      setFailedQueries([
+        ...(skillsResult.error ? ['skills'] : []),
+        ...(userSkillsResult.error ? ['your skills'] : []),
+        ...(achievementsResult.error ? ['achievements'] : []),
+      ]);
+      if (errors.length) setPageLoadError(`Some profile details could not be loaded: ${errors.map((error) => error.message).join(' · ')}`);
+      if (!skillsResult.error) setAllSkills(skillsResult.data || []);
+      if (!userSkillsResult.error) setUserSkillIds(new Set((userSkillsResult.data || []).map((skill) => skill.skill_id)));
+      if (!achievementsResult.error) setAchievements(achievementsResult.data || []);
+      setPageLoading(false);
     };
     if (session?.user?.id) getPageData();
     return () => { active = false; };
-  }, [session]);
+  }, [session?.user?.id, reloadCount]);
+
+  const retryPageData = useCallback(() => setReloadCount((count) => count + 1), []);
 
   const handleAddSkill = async (event) => {
     event.preventDefault();
@@ -67,7 +92,8 @@ const ProfilePage = () => {
   const availableSkillsToAdd = allSkills.filter((skill) => !userSkillIds.has(skill.id));
   const userSkills = allSkills.filter((skill) => userSkillIds.has(skill.id));
 
-  if (loading || !profile) return <div className="profile-loading">Loading your profile…</div>;
+  if (loading || pageLoading) return <div className="profile-loading">Loading your profile…</div>;
+  if (!profile) return <main className="profile-loading" role="alert"><h1>Profile unavailable</h1><p>Your profile record could not be loaded. Try again or contact support if this continues.</p><Button type="button" onClick={retryPageData}>Retry</Button></main>;
 
   return (
     <main className="profile-page">
@@ -77,6 +103,8 @@ const ProfilePage = () => {
         <p>Keep your experience, skills, and career direction current as you grow.</p>
       </header>
       {location.state?.profileSaved && <p className="profile-saved-banner" role="status">Your profile has been saved.</p>}
+      {location.state?.photoCleanupFailed && <p className="profile-load-error" role="status">Your new profile photo is saved, but the previous copy could not be removed from storage.</p>}
+      {pageLoadError && <div className="profile-load-error" role="alert"><span>{pageLoadError}</span><Button type="button" variant="secondary" onClick={retryPageData}>Retry loading</Button></div>}
 
       <div className="profile-grid">
         <Card className="profile-card">
@@ -115,7 +143,7 @@ const ProfilePage = () => {
 
           <Card className="skills-card">
             <div className="profile-card-heading"><div><p className="profile-card-kicker">WHAT YOU BRING</p><h2>My skillset <span className="profile-count">{userSkills.length}</span></h2></div></div>
-            {userSkills.length ? (
+            {failedQueries.includes('skills') || failedQueries.includes('your skills') ? <p className="profile-empty-copy">Skills are temporarily unavailable; retry to load your skillset.</p> : userSkills.length ? (
               <div className="skills-list">
                 {userSkills.map((skill) => (
                   <span key={skill.id} className="skill-badge-removable">{skill.name}<button type="button" onClick={() => handleRemoveSkill(skill.id)} className="remove-icon" aria-label={`Remove ${skill.name}`}>&times;</button></span>
@@ -143,7 +171,7 @@ const ProfilePage = () => {
 
           <Card className="achievements-card">
             <div className="profile-card-heading"><div><p className="profile-card-kicker">PROGRESS WORTH REMEMBERING</p><h2>Recent achievements</h2></div><Link to="/edit-profile" aria-label="Edit achievements">Edit <span aria-hidden="true">↗</span></Link></div>
-            {achievements.length ? (
+            {failedQueries.includes('achievements') ? <p className="profile-empty-copy">Achievements could not be loaded. Retry to check again.</p> : achievements.length ? (
               <div className="achievements-list">
                 {achievements.map((item) => (
                   <div key={item.id} className="achievement-item"><span className="achievement-dot" /><div className="achievement-text"><h3 className="achievement-title">{item.title}</h3><p className="achievement-subtitle">{item.subtitle}</p></div></div>

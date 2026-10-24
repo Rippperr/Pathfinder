@@ -86,13 +86,20 @@ const SettingsPage = () => {
 
   const exportData = async () => {
     setBusy('export'); setNotice(null);
-    const [skillsResult, achievementsResult] = await Promise.all([
-      supabase.from('user_skills').select('skill_id, skills(name)').eq('user_id', user.id),
-      supabase.from('achievements').select('*').eq('user_id', user.id),
-    ]);
+    let skillsResult, achievementsResult, progressResult;
+    try {
+      [skillsResult, achievementsResult, progressResult] = await Promise.all([
+        supabase.from('user_skills').select('skill_id, skills(name)').eq('user_id', user.id),
+        supabase.from('achievements').select('*').eq('user_id', user.id),
+        supabase.from('user_skill_progress').select('role_title, skill_name, status, evidence, completed_at, updated_at').eq('user_id', user.id),
+      ]);
+    } catch (error) {
+      setBusy('');
+      return setNotice({ type: 'error', text: error.message || 'Your data could not be exported. Check your connection and try again.' });
+    }
     setBusy('');
-    if (skillsResult.error || achievementsResult.error) {
-      return setNotice({ type: 'error', text: skillsResult.error?.message || achievementsResult.error?.message || 'Your data could not be exported.' });
+    if (skillsResult.error || achievementsResult.error || progressResult.error) {
+      return setNotice({ type: 'error', text: skillsResult.error?.message || achievementsResult.error?.message || progressResult.error?.message || 'Your data could not be exported.' });
     }
     const exportPayload = {
       exportedAt: new Date().toISOString(),
@@ -100,11 +107,14 @@ const SettingsPage = () => {
       profile: profile || null,
       skills: skillsResult.data || [],
       achievements: achievementsResult.data || [],
+      roadmapProgress: progressResult.data || [],
+      learningPreferences: user.user_metadata?.pathfinder_learning_preferences || preferences,
+      selectedTargetRole: user.user_metadata?.last_selected_role || (() => { try { return localStorage.getItem(`pathfinder-dashboard-role:${user.id}`); } catch { return null; } })(),
     };
     const url = URL.createObjectURL(new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' }));
     const link = document.createElement('a');
     link.href = url; link.download = 'pathfinder-account-data.json'; link.click();
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     setNotice({ type: 'success', text: 'Your Pathfinder data download is ready.' });
   };
 
@@ -159,7 +169,7 @@ const SettingsPage = () => {
 
       <section id="privacy" className="settings-section">
         <div className="settings-section-heading"><span>04</span><div><h2>Data &amp; privacy</h2><p>Take a copy of the career information you have added.</p></div></div>
-        <Card className="settings-card settings-data-card"><div><h3>Download your Pathfinder data</h3><p>Export your profile, skills, and achievements as a JSON file. This does not include your password or private sign-in tokens.</p></div><Button type="button" variant="secondary" disabled={busy === 'export'} onClick={exportData}>{busy === 'export' ? 'Preparing…' : 'Download my data'}</Button></Card>
+        <Card className="settings-card settings-data-card"><div><h3>Download your Pathfinder data</h3><p>Export your profile, skills, achievements, roadmap progress, and learning preferences as a JSON file. This does not include your password or private sign-in tokens.</p></div><Button type="button" variant="secondary" disabled={busy === 'export'} onClick={exportData}>{busy === 'export' ? 'Preparing…' : 'Download my data'}</Button></Card>
       </section>
       <p className="settings-footer-note">Need help with your account? <Link to="/profile">Visit your profile</Link> or sign out from the navigation menu.</p>
     </main>

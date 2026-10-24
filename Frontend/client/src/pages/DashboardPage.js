@@ -30,6 +30,7 @@ const DashboardPage = () => {
   const [skillProgress, setSkillProgress] = useState({});
   const [progressStorage, setProgressStorage] = useState('loading');
   const [progressSavingKey, setProgressSavingKey] = useState('');
+  const [dataLoadErrors, setDataLoadErrors] = useState([]);
   const roleSelectionKey = session?.user?.id ? `pathfinder-dashboard-role:${session.user.id}` : null;
   const savedAccountRole = session?.user?.user_metadata?.last_selected_role || '';
 
@@ -59,12 +60,16 @@ const DashboardPage = () => {
           supabase.from('user_skills').select('skill_id').eq('user_id', session.user.id),
           supabase.from('achievements').select('*').eq('user_id', session.user.id),
         ]);
+        const queryNames = ['roles', 'skills', 'your skills', 'achievements'];
+        const errors = results.flatMap((result, index) => result.error ? [`${queryNames[index]}: ${result.error.message}`] : []);
+        if (active) setDataLoadErrors(errors);
         rolesData = results[0].data || [];
         skillsData = results[1].data || [];
         userSkillsData = results[2].data || [];
         achievementsData = results[3].data || [];
       } catch (error) {
         console.warn('Using Pathfinder’s built-in career catalog because Supabase data is unavailable.', error);
+        if (active) setDataLoadErrors([error.message || 'Career data could not be loaded.']);
       }
       const mergedSkills = getCareerSkillCatalog(skillsData || []);
       const mergedRoles = getCareerRoleCatalog(rolesData || [], mergedSkills);
@@ -262,6 +267,7 @@ const DashboardPage = () => {
       </header>
 
       {location.state?.roleSyncFailed && <p className="dashboard-progress-notice" role="status">Your new roadmap is saved in this browser, but account sync was unavailable. It may not follow you to other devices yet.</p>}
+      {dataLoadErrors.length > 0 && <p className="dashboard-progress-notice" role="alert">Some live data did not load ({dataLoadErrors.join(' · ')}). Career guides remain available, but your saved skills or achievements may be incomplete. Refresh to retry.</p>}
 
       <CustomDropdown
         options={roles}
@@ -288,7 +294,7 @@ const DashboardPage = () => {
 
         <Card className="career-focus-card achievements-roadmap-card">
           <div className="career-focus-heading"><div><p className="career-focus-kicker">PROOF OF YOUR PROGRESS</p><h2>Recent achievements</h2></div><Link to="/edit-profile">Manage <span aria-hidden="true">↗</span></Link></div>
-          {achievements.length ? <div className="roadmap-achievements-list">
+          {dataLoadErrors.some((item) => item.startsWith('achievements:')) ? <div className="roadmap-achievements-empty"><p>Achievements could not be loaded. Refresh the page to try again.</p><Link to="/edit-profile">Manage achievements <span aria-hidden="true">→</span></Link></div> : achievements.length ? <div className="roadmap-achievements-list">
             {achievements.slice(0, 3).map((achievement) => {
               const chosenSkillId = achievementSkillSelections[achievement.id] || roadmapSummary.nextSkill?.id || '';
               const chosenSkill = roadmapSkills.find((skill) => skill.id === chosenSkillId);
@@ -314,6 +320,7 @@ const DashboardPage = () => {
       </section>
 
       <Card>
+        {dataLoadErrors.some((item) => item.startsWith('your skills:')) ? <p className="dashboard-progress-notice" role="alert">Your saved skills could not be checked, so the skill-gap comparison is hidden until data loads.</p> : <>
         <SkillGapDisplay 
           userSkills={userSkills}
           requiredSkills={requiredSkillsForRole}
@@ -321,6 +328,7 @@ const DashboardPage = () => {
           roleTitle={selectedRole?.title}
           completedSkillIds={completedRoadmapSkillIds}
         />
+        </>}
       </Card>
 
       <CareerRoadmap role={selectedRole} skills={skills} userSkillIds={userSkills} progressRecords={skillProgress} onProgressChange={handleSkillProgressChange} progressSavingKey={progressSavingKey} progressLoading={progressStorage === 'loading'} />

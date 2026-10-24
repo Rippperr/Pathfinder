@@ -1,4 +1,5 @@
 .career-paths-page { max-width: 1240px; margin: 0 auto; }
+.career-data-warning { margin: 1rem 0; padding: .8rem 1rem; border: 1px solid rgba(255, 200, 107, .25); border-radius: .75rem; color: #e8cc93; background: rgba(255, 200, 107, .06); font-size: .8rem; line-height: 1.5; }
 .career-page-heading { max-width: 760px; margin-bottom: 1.5rem; }
 .career-page-eyebrow { margin: 0 0 0.55rem; color: #79e2c3; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; }
 .career-page-heading h1 { margin: 0; color: #f5f9ff; font-size: clamp(2.3rem, 5vw, 3.7rem); letter-spacing: -0.08em; line-height: 1; }

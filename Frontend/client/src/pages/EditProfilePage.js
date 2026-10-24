@@ -27,6 +27,23 @@ const EditProfilePage = () => {
   const [photoError, setPhotoError] = useState('');
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
+  const stagedAvatarPath = useRef(null);
+
+  useEffect(() => () => {
+    const path = stagedAvatarPath.current;
+    if (path) supabase.storage.from('avatars').remove([path]);
+  }, []);
+
+  const getOwnedAvatarPath = (url) => {
+    if (!url || !session?.user?.id) return null;
+    const marker = '/storage/v1/object/public/avatars/';
+    const markerIndex = url.indexOf(marker);
+    if (markerIndex < 0) return null;
+    try {
+      const path = decodeURIComponent(url.slice(markerIndex + marker.length).split('?')[0]);
+      return path.startsWith(`${session.user.id}/`) ? path : null;
+    } catch { return null; }
+  };
 
   useEffect(() => {
     let active = true;
@@ -108,6 +125,9 @@ const EditProfilePage = () => {
     if (uploadError) {
       setPhotoError(`Could not upload this photo: ${uploadError.message}`);
     } else {
+      const previousStagedPath = stagedAvatarPath.current;
+      stagedAvatarPath.current = fileName;
+      if (previousStagedPath) await supabase.storage.from('avatars').remove([previousStagedPath]);
       const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
       setAvatarUrl(data.publicUrl);
     }
@@ -120,6 +140,7 @@ const EditProfilePage = () => {
     setLoading(true);
     setSaveError('');
     setSaveSuccess('');
+    const newlyUploadedAvatarPath = stagedAvatarPath.current;
 
     const { error: profileError } = await supabase
       .from('users')
@@ -131,6 +152,8 @@ const EditProfilePage = () => {
       setLoading(false);
       return;
     }
+    // The profile now points to the uploaded object; it is no longer an unsaved temporary upload.
+    stagedAvatarPath.current = null;
 
     const originalAchievements = initialAchievementsRef.current;
     const originalIds = new Set(originalAchievements.map((item) => item.id).filter(Boolean));
@@ -175,12 +198,22 @@ const EditProfilePage = () => {
       return;
     }
 
+    const previousAvatarPath = getOwnedAvatarPath(contextProfile?.avatar_url);
+    let photoCleanupFailed = false;
+    if (previousAvatarPath && previousAvatarPath !== newlyUploadedAvatarPath && avatarUrl !== contextProfile?.avatar_url) {
+      const { error: cleanupError } = await supabase.storage.from('avatars').remove([previousAvatarPath]);
+      if (cleanupError) {
+        photoCleanupFailed = true;
+        console.warn('Profile photo was updated, but the old image could not be removed.', cleanupError);
+      }
+    }
+
     // Keep the ref in sync after a successful save; no full-table delete/reinsert is used.
     initialAchievementsRef.current = savedAchievements;
     await refetchProfile();
     setLoading(false);
     setSaveSuccess('Your profile has been saved.');
-    navigate('/profile', { state: { profileSaved: true } });
+    navigate('/profile', { state: { profileSaved: true, photoCleanupFailed } });
   };
 
   if (loading) return <div>Loading...</div>;
@@ -200,6 +233,7 @@ const EditProfilePage = () => {
             <div className="avatar-upload-copy">
               <b>{avatarUrl ? 'Your photo' : 'Add a photo of yourself'}</b>
               <p>JPG, PNG, or WebP · up to 5 MB</p>
+              <p className="avatar-privacy-note">Profile photos are publicly viewable by anyone with the image URL.</p>
               <input type="file" id="avatar-upload" onChange={handleAvatarUpload} disabled={uploading || loading} accept="image/jpeg,image/png,image/webp" />
               <label htmlFor="avatar-upload" className="upload-label">{uploading ? 'Uploading…' : avatarUrl ? 'Choose a different photo' : 'Choose your photo'}</label>
               {photoError && <p className="edit-profile-error" role="alert">{photoError}</p>}

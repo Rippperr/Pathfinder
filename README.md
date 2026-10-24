@@ -90,6 +90,8 @@ Get these values from your Supabase project’s API settings. The frontend must 
 
 For roadmap progress, apply [`20261008_add_user_skill_progress.sql`](supabase/migrations/20261008_add_user_skill_progress.sql). It creates a user-scoped table with RLS and grants access to authenticated users.
 
+For the role-guide review process and what the automated resource-link checks do (and do not) verify, see [`docs/career-catalog-maintenance.md`](docs/career-catalog-maintenance.md).
+
 ### 3. Configure Auth redirects
 
 In Supabase **Authentication → URL Configuration**, set the Site URL for your deployment and add the local URL (`http://localhost:3000/`) and live app URL (`https://pathfinder-gamma-liard.vercel.app/`) to the allowed redirect URLs.

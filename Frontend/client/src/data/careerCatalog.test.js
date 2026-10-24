@@ -16,3 +16,16 @@ test('every built-in role has a sequenced roadmap covering each core skill exact
     expect(role.optionalSkills.every((skill) => skills.some((available) => available.id === skill.id))).toBe(true);
   });
 });
+
+test('every built-in role has described learning resources with secure, valid URLs', () => {
+  const roles = getCareerRoleCatalog([], getCareerSkillCatalog());
+  roles.forEach((role) => {
+    expect(role.learningResources.length).toBeGreaterThan(0);
+    role.learningResources.forEach((resource) => {
+      expect(resource.title).toBeTruthy();
+      expect(resource.description).toBeTruthy();
+      expect(() => new URL(resource.url)).not.toThrow();
+      expect(new URL(resource.url).protocol).toBe('https:');
+    });
+  });
+});

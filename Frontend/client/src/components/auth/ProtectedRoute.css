@@ -1,0 +1,4 @@
+.profile-recovery { max-width: 42rem; margin: 4rem auto; padding: 2rem; border: 1px solid rgba(121, 226, 195, .24); border-radius: 1rem; color: #eaf4ff; background: linear-gradient(145deg, #122b48, #0a1c32); }
+.profile-recovery h1 { margin-top: 0; }
+.profile-recovery p { color: #b2c5dd; line-height: 1.6; }
+.profile-recovery > div { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.25rem; }

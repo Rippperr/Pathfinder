@@ -16,6 +16,7 @@ const CareerPathsPage = () => {
   const [query, setQuery] = useState('');
   const [familyFilter, setFamilyFilter] = useState('All fields');
   const [loading, setLoading] = useState(true);
+  const [dataLoadErrors, setDataLoadErrors] = useState([]);
   const [choosingRoleId, setChoosingRoleId] = useState('');
   const guideTriggerRef = useRef(null);
   const closeGuideRef = useRef(null);
@@ -32,11 +33,15 @@ const CareerPathsPage = () => {
           supabase.from('skills').select('*').order('name'),
           supabase.from('user_skills').select('skill_id').eq('user_id', session.user.id),
         ]);
+        const queryNames = ['role catalog', 'skill catalog', 'your saved skills'];
+        const errors = results.flatMap((result, index) => result.error ? [`${queryNames[index]}: ${result.error.message}`] : []);
+        if (active) setDataLoadErrors(errors);
         rolesData = results[0].data || [];
         skillsData = results[1].data || [];
         userSkillsData = results[2].data || [];
       } catch (error) {
         console.warn('Using Pathfinder’s built-in role and skill catalog because Supabase data is unavailable.', error);
+        if (active) setDataLoadErrors([error.message || 'Career data could not be loaded.']);
       }
       if (!active) return;
       const allSkills = getCareerSkillCatalog(skillsData || []);
@@ -117,6 +122,7 @@ const CareerPathsPage = () => {
   const activeGuideRole = roles.find((role) => role.id === expandedRoleId);
   const guideSkills = activeGuideRole?.resolvedSkills || (activeGuideRole?.role_skills || []).map(({ skill_id }) => skills.find((skill) => skill.id === skill_id)).filter(Boolean);
   const guideKnownSkillCount = guideSkills.filter((skill) => userSkills.includes(skill.id)).length;
+  const savedSkillsUnavailable = dataLoadErrors.some((item) => item.startsWith('your saved skills:'));
   const guideIsTargetRole = normalizeCareerTitle(profile?.desired_role || '') === normalizeCareerTitle(activeGuideRole?.title || '');
 
   return (
@@ -135,6 +141,7 @@ const CareerPathsPage = () => {
         <span aria-hidden="true">◎</span>
         <p><b>Roadmaps are sequenced learning plans, not exhaustive hiring checklists.</b> Core skills move from foundations toward applied and production work. Specializations vary by employer—compare them with current job descriptions. Reference frameworks: <a href="https://developers.google.com/machine-learning/crash-course" target="_blank" rel="noreferrer">Google ML Crash Course</a>, <a href="https://www.nist.gov/itl/applied-cybersecurity/nice/nice-framework-resource-center" target="_blank" rel="noreferrer">NIST NICE</a>, <a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html" target="_blank" rel="noreferrer">AWS Well-Architected</a>, <a href="https://owasp.org/www-project-application-security-verification-standard/" target="_blank" rel="noreferrer">OWASP ASVS</a>, and <a href="https://www.w3.org/TR/wcag/" target="_blank" rel="noreferrer">W3C WCAG</a>.</p>
       </aside>
+      {dataLoadErrors.length > 0 && <p className="career-data-warning" role="alert">Some account or catalog data could not be loaded ({dataLoadErrors.join(' · ')}). You can still browse the built-in career guides; saved-skill comparisons may be incomplete.</p>}
 
       <section className="role-explorer" aria-label="Explore career roles">
         <div className="role-explorer-toolbar">
@@ -156,7 +163,7 @@ const CareerPathsPage = () => {
                   <div className="role-catalog-card-top"><span className="role-catalog-mark" aria-hidden="true">{role.mark}</span><span className="role-family-label">{role.family}</span>{isTargetRole && <span className="role-target-label">Your target</span>}</div>
                   <h2>{role.title}</h2>
                   <p className="role-summary">{role.summary}</p>
-                  <div className="role-skill-summary"><span>{knownSkillCount} of {requiredSkills.length} listed skills in your profile</span><span className="role-skill-track"><i style={{ width: requiredSkills.length ? `${Math.round((knownSkillCount / requiredSkills.length) * 100)}%` : '0%' }} /></span></div>
+                  <div className="role-skill-summary"><span>{savedSkillsUnavailable ? 'Saved skills unavailable' : `${knownSkillCount} of ${requiredSkills.length} listed skills in your profile`}</span><span className="role-skill-track"><i style={{ width: !savedSkillsUnavailable && requiredSkills.length ? `${Math.round((knownSkillCount / requiredSkills.length) * 100)}%` : '0%' }} /></span></div>
                   <div className="role-skill-chips">{requiredSkills.slice(0, 4).map((skill) => <span className={userSkills.includes(skill.id) ? 'skill-chip is-known' : 'skill-chip'} key={skill.id}>{skill.name}</span>)}{requiredSkills.length > 4 && <span className="skill-chip-more">+{requiredSkills.length - 4}</span>}</div>
                   <div className="role-card-actions">
                     <button type="button" className="role-details-toggle" onClick={(event) => toggleRoleDetails(role.id, event)} aria-haspopup="dialog" aria-expanded={expandedRoleId === role.id}>View complete role guide <span aria-hidden="true">↗</span></button>
@@ -175,7 +182,7 @@ const CareerPathsPage = () => {
             <button ref={closeGuideRef} type="button" className="role-guide-close" onClick={() => setExpandedRoleId(null)} aria-label="Close role guide">×</button>
           </header>
           <div className="role-guide-content">
-            <section className="role-guide-intro"><p className="role-guide-eyebrow">COMPLETE ROLE GUIDE</p><p id="role-guide-summary">{activeGuideRole.summary}</p><div className="role-guide-skill-progress"><div><span>Your listed skills</span><b>{guideKnownSkillCount} / {guideSkills.length}</b></div><span className="role-guide-progress-track"><i style={{ width: guideSkills.length ? `${Math.round((guideKnownSkillCount / guideSkills.length) * 100)}%` : '0%' }} /></span></div></section>
+            <section className="role-guide-intro"><p className="role-guide-eyebrow">COMPLETE ROLE GUIDE</p><p id="role-guide-summary">{activeGuideRole.summary}</p><div className="role-guide-skill-progress"><div><span>Your listed skills</span><b>{savedSkillsUnavailable ? 'Unavailable' : `${guideKnownSkillCount} / ${guideSkills.length}`}</b></div><span className="role-guide-progress-track"><i style={{ width: !savedSkillsUnavailable && guideSkills.length ? `${Math.round((guideKnownSkillCount / guideSkills.length) * 100)}%` : '0%' }} /></span></div></section>
             <div className="role-guide-sections">
               <section className="role-guide-section role-guide-overview"><h3>Role overview</h3><p>{activeGuideRole.overview}</p></section>
               <section className="role-guide-section"><h3>What you’ll work on</h3><ul>{activeGuideRole.responsibilities.map((item) => <li key={item}>{item}</li>)}</ul></section>

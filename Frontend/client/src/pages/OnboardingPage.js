@@ -129,7 +129,7 @@ const OnboardingPage = () => {
       }
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('users')
       .update({
         name: form.name.trim(),
@@ -141,14 +141,26 @@ const OnboardingPage = () => {
         career_goals: form.careerGoals.trim(),
         onboarding_completed: true,
       })
-      .eq('id', session.user.id);
+      .eq('id', session.user.id)
+      .select('id')
+      .maybeSingle();
 
     if (error) {
       setErrorMessage(error.message);
       setSaving(false);
       return;
     }
-    await refetchProfile();
+    if (!data?.id) {
+      setErrorMessage('Your account profile record is missing. Please sign out and contact support so it can be restored safely.');
+      setSaving(false);
+      return;
+    }
+    const profileResult = await refetchProfile();
+    if (!profileResult?.ok) {
+      setErrorMessage('Your details were saved, but Pathfinder could not reload your profile. Please try again.');
+      setSaving(false);
+      return;
+    }
     navigate('/dashboard', { replace: true });
   };
 
