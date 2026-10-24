@@ -21,7 +21,7 @@ const SignupPage = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/confirm-email`,
+          emailRedirectTo: `${window.location.origin}/onboarding`,
         },
       });
       if (error) throw error;

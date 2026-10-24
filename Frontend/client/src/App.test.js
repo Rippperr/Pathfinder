@@ -52,7 +52,7 @@ test('renders the onboarding form for a new user', () => {
   expect(screen.getByRole('button', { name: /build my roadmap/i })).toBeInTheDocument();
 });
 
-test('sends confirmation emails back to the branded confirmation page', async () => {
+test('sends confirmation emails directly to onboarding after verification', async () => {
   supabase.auth.signUp.mockResolvedValue({ error: null });
   render(
     <MemoryRouter>
@@ -69,7 +69,7 @@ test('sends confirmation emails back to the branded confirmation page', async ()
       email: 'new.user@example.com',
       password: 'password123',
       options: {
-          emailRedirectTo: `${window.location.origin}/confirm-email`,
+          emailRedirectTo: `${window.location.origin}/onboarding`,
       },
     });
   });

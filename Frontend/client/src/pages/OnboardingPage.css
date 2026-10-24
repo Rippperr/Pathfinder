@@ -36,9 +36,9 @@
 .skills-category h3 { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 0.75rem; color: #b7cbe5; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
 .skills-category h3 span { color: #7189a9; font-size: 0.68rem; }
 .onboarding-skill-options { display: flex; flex-wrap: wrap; gap: 0.55rem; }
-.onboarding-skill-option { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2.35rem; padding: 0.42rem 0.7rem; border: 1px solid rgba(161, 188, 223, 0.18); border-radius: 0.65rem; color: #bdd0e9; background: rgba(8, 25, 45, 0.7); cursor: pointer; font-size: 0.82rem; transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease; }
+.onboarding-skill-option { position: relative; display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2.35rem; padding: 0.42rem 0.7rem; border: 1px solid rgba(161, 188, 223, 0.18); border-radius: 0.65rem; color: #bdd0e9; background: rgba(8, 25, 45, 0.7); cursor: pointer; font-size: 0.82rem; transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease; }
 .onboarding-skill-option:hover { border-color: rgba(121, 226, 195, 0.5); color: #f0f8ff; }
-.onboarding-skill-option input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.onboarding-skill-option input { position: absolute; top: 50%; left: 50%; width: 1px; min-height: 0; height: 1px; margin: 0; padding: 0; overflow: hidden; border: 0; background: transparent; box-shadow: none; clip: rect(0, 0, 0, 0); clip-path: inset(50%); white-space: nowrap; opacity: 0; }
 .onboarding-skill-option.is-unavailable { opacity: .48; cursor: not-allowed; }
 .onboarding-skill-option.is-unavailable input { pointer-events: none; }
 .onboarding-skill-option:focus-within { outline: 2px solid #79e2c3; outline-offset: 2px; }

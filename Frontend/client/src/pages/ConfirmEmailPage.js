@@ -14,9 +14,22 @@ const ConfirmEmailPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const email = location.state?.email || window.sessionStorage.getItem('pathfinder-confirmation-email') || '';
 
-  if (!loading && session) {
+  if (session && !loading) {
     window.sessionStorage.removeItem('pathfinder-confirmation-email');
     return <Navigate to="/onboarding" replace />;
+  }
+
+  if (session) {
+    return (
+      <PublicAuthLayout title="Email confirmed." description="Your Pathfinder account is verified. We’re preparing your profile setup now.">
+        <section className="confirmation-content" aria-live="polite" role="status">
+          <div className="confirmation-icon" aria-hidden="true">✓</div>
+          <h3>You’re verified</h3>
+          <p>Just a moment while we securely load your account. Your profile setup will open automatically.</p>
+          <div className="confirmation-progress" aria-hidden="true"><span /></div>
+        </section>
+      </PublicAuthLayout>
+    );
   }
 
   const resendConfirmation = async () => {
@@ -31,7 +44,7 @@ const ConfirmEmailPage = () => {
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email,
-      options: { emailRedirectTo: `${window.location.origin}/confirm-email` },
+      options: { emailRedirectTo: `${window.location.origin}/onboarding` },
     });
     if (error) setErrorMessage(error.message);
     else setNotice('A fresh confirmation link is on its way.');

@@ -223,9 +223,20 @@ const OnboardingPage = () => {
                     <div className="onboarding-skill-options">
                       {categorySkills.map((skill) => {
                         const selected = selectedSkillIds.includes(skill.id);
+                        const handleSkillChange = (event) => {
+                          // Keep the onboarding form in place when browsers try to scroll
+                          // a visually-hidden checkbox into view after it receives focus.
+                          const scrollContainer = event.currentTarget.closest('.page-content');
+                          const scrollTop = scrollContainer ? scrollContainer.scrollTop : window.scrollY;
+                          toggleSkill(skill.id);
+                          window.requestAnimationFrame(() => {
+                            if (scrollContainer) scrollContainer.scrollTop = scrollTop;
+                            else window.scrollTo({ top: scrollTop });
+                          });
+                        };
                         return (
                           <label key={skill.id} className={`onboarding-skill-option${selected ? ' is-selected' : ''}${skill.catalogOnly ? ' is-unavailable' : ''}`}>
-                            <input type="checkbox" checked={selected} onChange={() => toggleSkill(skill.id)} disabled={skill.catalogOnly} />
+                            <input type="checkbox" checked={selected} onChange={handleSkillChange} disabled={skill.catalogOnly} />
                             <span className="skill-option-check" aria-hidden="true">{selected ? '✓' : '+'}</span>
                             <span>{skill.name}</span>
                           </label>
