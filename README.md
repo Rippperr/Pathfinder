@@ -43,7 +43,7 @@ These screenshots show the current public-facing design. Dashboard and profile p
 | --- | --- |
 | Frontend | React 18, React Router 6 |
 | Styling | CSS |
-| Authentication and database | Supabase Auth, PostgreSQL, Supabase JavaScript client |
+| Authentication, database, and storage | Supabase Auth, PostgreSQL, Supabase Storage, Supabase JavaScript client |
 | Data security | PostgreSQL Row Level Security (RLS) policies and explicit grants |
 | Hosting | Vercel |
 
@@ -116,9 +116,10 @@ Pathfinder/
 │       ├── contexts/      # Authenticated user and profile context
 │       ├── data/          # Built-in role catalog and skill learning guides
 │       └── pages/         # Landing, onboarding, dashboard, profile, settings
-├── Backend/server/        # Separate Express prototype; frontend currently uses Supabase directly
 └── supabase/migrations/   # Incremental PostgreSQL schema and RLS migrations
 ```
+
+The React app uses Supabase directly for authentication, database access, and avatar storage. There is no separate Express API server in the active architecture. Keep privileged secrets out of the browser; add server-side functions only when a feature needs protected credentials or trusted server-side work.
 
 ## 🔒 Supabase security & availability notes
 
