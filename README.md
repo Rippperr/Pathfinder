@@ -29,15 +29,13 @@ Pathfinder is a career-development web app for exploring technology roles, compa
 - ⚙️ **Set learning preferences**, update account details, and export your Pathfinder data.
 - 📱 **Use a responsive interface** designed for desktop and mobile screens.
 
-## 🖼️ Screenshots
+## 🖼️ Current app screenshots
 
-<p align="center">
-  <img width="90%" alt="Pathfinder career dashboard" src="https://github.com/user-attachments/assets/dfca64bf-21b4-4197-a3a5-1a33a97f0d02" />
-</p>
+These screenshots show the current public-facing design. Dashboard and profile pages require signing in, so no account-specific information is included here.
 
-<p align="center">
-  <img width="90%" alt="Pathfinder user profile" src="https://github.com/user-attachments/assets/4b05ba77-3247-4957-be6f-0ed6b9936054" />
-</p>
+| ✨ Landing page | 👋 Sign-up page |
+| --- | --- |
+| ![Current Pathfinder landing page](docs/screenshots/pathfinder-landing.png) | ![Current Pathfinder sign-up page](docs/screenshots/pathfinder-signup.png) |
 
 ## 🧰 Built with
 
